@@ -1,0 +1,17 @@
+
+t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(¨ÏÃ¨üÿÿÿÿ
+k
+java:S1149."PReplace the synchronized class "Stack" by an unsynchronized one such as "Deque".(ÑÖÙƒýÿÿÿÿ
+Q	java:S125$"<This block of commented-out lines of code should be removed.(²Äá
+Q	java:S125)"<This block of commented-out lines of code should be removed.(ôÈÂÉ
+Q	java:S125-"<This block of commented-out lines of code should be removed.(Ô‡ôª
+Q	java:S125:"<This block of commented-out lines of code should be removed.(ÇðØ
+Q	java:S125@"<This block of commented-out lines of code should be removed.(ÞãÓ
+h
+java:S3776b"RRefactor this method to reduce its Cognitive Complexity from 22 to the 15 allowed.(Øþ…»
+Q	java:S125f"<This block of commented-out lines of code should be removed.(Ô‡ôª
+?
+java:S5413‹")Verify that "remove()" is used correctly.(½øÑs
+V	java:S125}"<This block of commented-out lines of code should be removed.(®¯ «ûÿÿÿÿ
+X
+java:S1126"AReplace this if-then-else statement by a single return statement.(Ñº×È

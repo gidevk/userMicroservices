@@ -1,0 +1,14 @@
+
+o	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(«‡÷»
+V	java:S125#"<This block of commented-out lines of code should be removed.(¥«°Á˝ˇˇˇˇ
+S
+java:S1128"=Remove this unused import 'com.expriment.entity.UserDetails'.(ŸÆÕÍ
+\
+java:S1128"ARemove this unused import 'org.springframework.http.HttpHeaders'.(„üÒ◊˙ˇˇˇˇ
+[
+java:S1128	"@Remove this unused import 'org.springframework.http.HttpStatus'.(Ìü§ä˙ˇˇˇˇ
+Z
+java:S1128
+"?Remove this unused import 'org.springframework.http.MediaType'.(˙ü›Ø˛ˇˇˇˇ
+_
+java:S1128"DRemove this unused import 'org.springframework.http.ResponseEntity'.(∂Ø¯¶˙ˇˇˇˇ
