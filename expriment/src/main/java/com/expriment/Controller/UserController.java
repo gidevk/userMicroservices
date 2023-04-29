@@ -14,6 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Base64;
+
 @Controller
 @RequestMapping("/user")
 public class UserController {
@@ -64,3 +68,4 @@ public class UserController {
 //        return new ResponseEntity<>(userDetailsService.saveUserDetails(userDetails), HttpStatus.OK);
     }
 }
+

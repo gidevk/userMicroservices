@@ -1,16 +1,22 @@
 /*
-package com.expriment.utils;
+package com.expriment.service;
 
 
 import com.expriment.DAO.Impl.AuditDetailsUtility;
+import com.expriment.Testing.DocTypeData;
+import com.expriment.Testing.EmudraDocRequest;
+import com.expriment.Testing.EmudraRequest;
 import com.expriment.entity.vo.AuditDetailsPayload;
+import com.expriment.entity.vo.EmudraExternalResponse;
+import com.expriment.utils.ProjectConstants;
 import com.expriment.utils.audit.entity.SmsMailResponse;
+import com.expriment.utils.audit.entity.vo.RootResponse;
 import com.expriment.utils.audit.entity.vo.SmsMailPayload;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
-import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.MimeMultipart;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -22,21 +28,21 @@ import javax.mail.BodyPart;
 //import javax.mail.MessagingException;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+
 import java.util.Date;
+import java.util.List;
 
 @Component
-public class EmailServicesImpl implements EmailServices {
+public class EmailServicesImpl implements EmudraService {
 	
 	Logger logger = LogManager.getLogger("EmailServicesImpl");
 
-	*/
-/*@Autowired
-	public TCLAPIsProps tclApisProps;
+//@Autowired
+//	public TCLAPIsProps tclApisProps;
 
-	@Autowired
-	public TCLServiceManager tclServiceManager;
-*//*
+//	@Autowired
+//	public TCLServiceManager tclServiceManager;
+
 
 	@Autowired
 	JavaMailSender javaMailSender;
@@ -45,7 +51,32 @@ public class EmailServicesImpl implements EmailServices {
 	AuditDetailsUtility auditDetailsUtility;
 
 	public  static String fromMailId=" idevk995@gmail.com";
-	
+
+	@Override
+	public ResponseEntity<?> saveEmudraDocumentService(EmudraDocRequest emudraDocRequest) {
+		return null;
+	}
+
+	@Override
+	public RootResponse saveDocForEmudra(List<DocTypeData> emudraDocRequest, String leadId, String customerHash) {
+		return null;
+	}
+
+	@Override
+	public EmudraRequest creatingEmudraRequest(String leadId) {
+		return null;
+	}
+
+	@Override
+	public EmudraExternalResponse eMudraService(String leadId, EmudraRequest emudraRequest) {
+		return null;
+	}
+
+	@Override
+	public void jobsForEmudraAndDmsEmails(List<String> request) {
+
+	}
+
 	@Override
 	public SmsMailResponse sendMail(SmsMailPayload mailPayload) {
 		logger.info("sendMail block");
@@ -73,20 +104,19 @@ public class EmailServicesImpl implements EmailServices {
 			helper.setTo(mailPayload.getMailTo());
 			helper.setSubject(mailPayload.getSubject());
 					
-			MimeMultipart mimeMultipart = new MimeMultipart();
+//			MimeMultipart mimeMultipart = new MimeMultipart();
 		    MimeBodyPart messageBodyPart = new MimeBodyPart();
 		    messageBodyPart.setContent(mailPayload.getMessage(), "text/html");
 			
-			mimeMultipart.addBodyPart(messageBodyPart);
+//			mimeMultipart.addBodyPart(messageBodyPart);
 			helper.addAttachment(mailPayload.getFileName(), mailPayload.getFile());
 			
 //			message.setContent(mimeMultipart);
 			
 			if(mailPayload != null && mailPayload.getFile() != null && mailPayload.getFile().exists()) {
 				logger.info("inside attachment block");
-				*/
-/*FileSystemResource fr = new FileSystemResource(mailPayload.getFile());
-				helper.addAttachment(mailPayload.getFile().getName(), fr);*//*
+FileSystemResource fr = new FileSystemResource(mailPayload.getFile());
+				helper.addAttachment(mailPayload.getFile().getName(), fr);
 
 				logger.info("CompleteFilePath: "+mailPayload.getCompleteFilePath());
 				logger.info("File Name:"+mailPayload.getFile().getName());
@@ -94,10 +124,10 @@ public class EmailServicesImpl implements EmailServices {
 				DataSource source = new FileDataSource(mailPayload.getCompleteFilePath());
 				messageBodyPart.setDataHandler(new DataHandler(source));
 				messageBodyPart.setFileName(mailPayload.getFile().getName());
-				mimeMultipart.addBodyPart(messageBodyPart);
+//				mimeMultipart.addBodyPart(messageBodyPart);
 		        
 				// Send the complete message parts
-		        message.setContent(mimeMultipart);
+//		        message.setContent(mimeMultipart);
 			} else {
 				logger.info("no attacgement");
 			}
@@ -108,13 +138,12 @@ public class EmailServicesImpl implements EmailServices {
 			auditDetailsPayload.setStatus(ProjectConstants.SUCCESS);
 			rootResponse.setRetStatus(ProjectConstants.SUCCESS);
 			//need to enable this code to delete file from disk 
-			*/
-/*if(mailPayload!=null && mailPayload.getFile()!=null && mailPayload.getFile().exists()) {
+if(mailPayload!=null && mailPayload.getFile()!=null && mailPayload.getFile().exists()) {
 				mailPayload.getFile().delete();
-			}*//*
+			}
 
 			
-		} catch (MessagingException | javax.mail.MessagingException e) {
+		} catch ( javax.mail.MessagingException e) {
 			e.printStackTrace();
 			auditDetailsPayload.setResponse("Failed");
 			auditDetailsPayload.setStatus("FAIL");

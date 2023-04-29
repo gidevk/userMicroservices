@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="DEBUG">
+	<Properties>
+		<Property name="log-path">D:\logs\log</Property>
+		<!--		<Property name="log-path-info">${LOG_FILE}</Property>-->
+	</Properties>
+
+	<Appenders>
+		<RollingFile name="AppLayerLogger"
+					 fileName="${log-path}/ApTest.log"
+					 filePattern="${log-path}-archive-%d{yyyy-MM-dd}-%i.gz">
+			<PatternLayout>
+				<pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %-5p C:%C{1} M:%M L:%L - %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="100MB" />
+				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+			</Policies>
+			<!--<DefaultRolloverStrategy max="50">
+				<Delete basePath="${env:LOG_PATH}" maxDepth="2">
+					<IfFileName glob="*/ErrorManagement*.log.gz" />
+					<IfLastModified age="P90D" />
+				</Delete>
+			</DefaultRolloverStrategy>-->
+		</RollingFile>
+-->
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout ><pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %-5p C:%C{1} M:%M L:%L - %m%n</pattern></PatternLayout>
+		</Console>
+	</Appenders>
+
+
+	<Loggers>
+		<AsyncLogger name="AppLayerLogger" level="error" additivity="false" includeLocation="true">
+			<appender-ref ref="AppLayerLogger" level="error" />
+
+		</AsyncLogger>
+		<AsyncRoot level="info" additivity="false" includeLocation="true">
+			<appender-ref ref="console" />
+			<appender-ref ref="AppLayerLogger" level="error" />
+<!--			<appender-ref ref="RollingFileInfo"/>-->
+		</AsyncRoot>
+		<Logger name="AppLayerLogger" level="info" additivity="false" includeLocation="true" >
+			<AppenderRef ref="AppLayerLogger"/>
+			<AppenderRef ref="console" level="info" />
+		</Logger>
+	</Loggers>
+</Configuration>
