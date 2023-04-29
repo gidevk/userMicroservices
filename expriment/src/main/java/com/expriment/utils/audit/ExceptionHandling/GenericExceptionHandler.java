@@ -1,7 +1,6 @@
 package com.expriment.utils.audit.ExceptionHandling;
 
 import com.expriment.utils.ProjectConstants;
-import com.expriment.utils.ProjectUtils;
 //import org.molgenis.util.exception.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.expriment.utils.audit.entity.vo.DefaultResponse;
-
-import java.io.FileNotFoundException;
 
 @ControllerAdvice
 public class GenericExceptionHandler {
@@ -30,7 +27,7 @@ public class GenericExceptionHandler {
         logger.error(ProjectConstants.EXCEPTION_OCCURRED, e);
         DefaultResponse response = new DefaultResponse();
         response.setMessage(ProjectConstants.API_FAIL);
-        response.setStatus(ProjectConstants.FAIL);
+        response.setStatus(ProjectConstants.FAILURE);
         response.setStatusCode(500);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }

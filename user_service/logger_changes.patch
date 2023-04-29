@@ -1,0 +1,626 @@
+Index: expriment/src/main/java/com/expriment/Testing/PdfMerging.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- expriment/src/main/java/com/expriment/Testing/PdfMerging.java	(revision 5393696053ef7dee95117e0922b8184c2f2a967a)
++++ expriment/src/main/java/com/expriment/Testing/PdfMerging.java	(date 1682764758518)
+@@ -3,6 +3,9 @@
+ import org.apache.pdfbox.exceptions.COSVisitorException;
+ import org.apache.pdfbox.util.PDFMergerUtility;
+ 
++import org.apache.pdfbox.exceptions.COSVisitorException;
++import org.apache.pdfbox.util.PDFMergerUtility;
++
+ import java.io.File;
+ import java.io.IOException;
+ 
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/vcs.xml	(date 1682760186673)
++++ .idea/vcs.xml	(date 1682760186673)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: expriment/src/main/resources/log4j2.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- expriment/src/main/resources/log4j2.xml	(date 1682765999035)
++++ expriment/src/main/resources/log4j2.xml	(date 1682765999035)
+@@ -0,0 +1,49 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<Configuration status="DEBUG">
++	<Properties>
++		<Property name="log-path">D:\logs\log</Property>
++		<!--		<Property name="log-path-info">${LOG_FILE}</Property>-->
++	</Properties>
++
++	<Appenders>
++		<RollingFile name="AppLayerLogger"
++					 fileName="${log-path}/ApTest.log"
++					 filePattern="${log-path}-archive-%d{yyyy-MM-dd}-%i.gz">
++			<PatternLayout>
++				<pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %t %-5p C:%C{1}  M:%M L:%L - %m%n</pattern>
++			</PatternLayout>
++			<Policies>
++				<OnStartupTriggeringPolicy />
++				<SizeBasedTriggeringPolicy size="100MB" />
++				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
++			</Policies>
++			<!--<DefaultRolloverStrategy max="50">
++				<Delete basePath="${env:LOG_PATH}" maxDepth="2">
++					<IfFileName glob="*/ErrorManagement*.log.gz" />
++					<IfLastModified age="P90D" />
++				</Delete>
++			</DefaultRolloverStrategy>-->
++		</RollingFile>
++-->
++		<Console name="console" target="SYSTEM_OUT">
++			<PatternLayout ><pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %t %-5p C:%C{1}  M:%M L:%L - %m%n</pattern></PatternLayout>
++		</Console>
++	</Appenders>
++
++
++	<Loggers>
++		<AsyncLogger name="AppLayerLogger" level="error" additivity="false" includeLocation="true">
++			<appender-ref ref="AppLayerLogger" level="error" />
++
++		</AsyncLogger>
++		<AsyncRoot level="info" additivity="false" includeLocation="true">
++			<appender-ref ref="console" />
++			<appender-ref ref="AppLayerLogger" level="error" />
++<!--			<appender-ref ref="RollingFileInfo"/>-->
++		</AsyncRoot>
++		<Logger name="AppLayerLogger" level="info" additivity="false" includeLocation="true" >
++			<AppenderRef ref="AppLayerLogger"/>
++			<AppenderRef ref="console" level="info" />
++		</Logger>
++	</Loggers>
++</Configuration>
+Index: expriment/src/main/java/com/expriment/utils/AppProps.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- expriment/src/main/java/com/expriment/utils/AppProps.java	(date 1682191655382)
++++ expriment/src/main/java/com/expriment/utils/AppProps.java	(date 1682191655382)
+@@ -0,0 +1,94 @@
++package com.expriment.utils;
++
++import org.springframework.beans.factory.annotation.Value;
++import org.springframework.context.annotation.Configuration;
++import org.springframework.context.annotation.Profile;
++
++/**
++ * @author SAIDULU (EMPID:061)
++ * @version 1.0 27-Jun-2018
++ */
++
++@Configuration
++@Profile({ "application-project-url"})
++public class AppProps {
++
++	@Value("${location_to_upload_doc}")
++	private String locationToUploadDoc;
++
++	@Value("${tcl_api_request_details_file}")
++	private String tclApiRequestDetailsFile;
++
++	@Value("${handle_evoke_request_uri}")
++	private String evokeServiceUrl;
++
++	@Value("${tclpa.apis.getofferdetails.query}")
++	private String paOfferDetailsQuery;
++
++	@Value("${tcl_ccare_from}")
++	private String fromMailId;
++
++	@Value("${tcl_pa_bcc_ids}")
++	private String bccMailIds;
++
++	public String getHelloBose() {
++		return helloBose;
++	}
++
++	public void setHelloBose(String helloBose) {
++		this.helloBose = helloBose;
++	}
++
++	@Value(("${tcl.data.bos}"))
++	private String helloBose;
++
++
++	public String getLocationToUploadDoc() {
++		return locationToUploadDoc;
++	}
++
++	public void setLocationToUploadDoc(String locationToUploadDoc) {
++		this.locationToUploadDoc = locationToUploadDoc;
++	}
++
++	public String getTclApiRequestDetailsFile() {
++		return tclApiRequestDetailsFile;
++	}
++
++	public void setTclApiRequestDetailsFile(String tclApiRequestDetailsFile) {
++		this.tclApiRequestDetailsFile = tclApiRequestDetailsFile;
++	}
++
++	public String getEvokeServiceUrl() {
++		return evokeServiceUrl;
++	}
++
++	public void setEvokeServiceUrl(String evokeServiceUrl) {
++		this.evokeServiceUrl = evokeServiceUrl;
++	}
++
++	public String getPaOfferDetailsQuery() {
++		return paOfferDetailsQuery;
++	}
++
++	public void setPaOfferDetailsQuery(String paOfferDetailsQuery) {
++		this.paOfferDetailsQuery = paOfferDetailsQuery;
++	}
++
++	public String getFromMailId() {
++		return fromMailId;
++	}
++
++	public void setFromMailId(String fromMailId) {
++		this.fromMailId = fromMailId;
++	}
++
++	public String getBccMailIds() {
++		return bccMailIds;
++	}
++
++	public void setBccMailIds(String bccMailIds) {
++		this.bccMailIds = bccMailIds;
++	}
++	
++}
+Index: expriment/src/main/resources/application-project-url.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>windows-1252
+===================================================================
+--- expriment/src/main/resources/application-project-url.properties	(date 1682193393239)
++++ expriment/src/main/resources/application-project-url.properties	(date 1682193393239)
+@@ -0,0 +1,16 @@
++
++
++spring.mail.host=192.168.16.41
++spring.mail.port=25
++spring.mail.username=onlinepersonalloan@tatacapital.com
++spring.mail.password=April@@2019
++spring.mail.properties.mail.transport.protocol = smtp
++spring.mail.properties.mail.smtp.starttls.enable = true
++spring.mail.properties.mail.smtp.starttls.required = true
++spring.mail.properties.mail.smtp.auth=true
++spring.mail.properties.mail.smtp.connectiontimeout=5000
++spring.mail.properties.mail.smtp.timeout=3000
++spring.mail.properties.mail.smtp.writetimeout=5000
++
++
++tcl_ccare_from = onlinepersonalloan@tatacapital.com
+\ No newline at end of file
+Index: expriment/pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- expriment/pom.xml	(revision 5393696053ef7dee95117e0922b8184c2f2a967a)
++++ expriment/pom.xml	(date 1682764930482)
+@@ -22,7 +22,26 @@
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-web</artifactId>
++			<exclusions>
++				<exclusion>
++					<groupId>org.springframework.boot</groupId>
++					<artifactId>spring-boot-starter-logging</artifactId>
++				</exclusion>
++			</exclusions>
++		</dependency>
++
++		<dependency>
++			<groupId>org.springframework.boot</groupId>
++			<artifactId>spring-boot-starter-log4j2</artifactId>
++		</dependency>
++
++		<!-- Needed for Async Logging with Log4j 2 -->
++		<dependency>
++			<groupId>com.lmax</groupId>
++			<artifactId>disruptor</artifactId>
++			<version>3.3.6</version>
+ 		</dependency>
++		<!-- https://mvnrepository.com/artifact/com.github.ulisesbocchio/jasypt-spring-boot-starter -->
+ 
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+@@ -32,7 +51,7 @@
+ 		<dependency>
+ 			<groupId>org.hibernate.javax.persistence</groupId>
+ 			<artifactId>hibernate-jpa-2.1-api</artifactId>
+-			<version>2.2</version>
++			<version>1.0.0.Final</version>
+ 		</dependency>
+ <!--		<dependency>-->
+ <!--			<groupId>javax.ws.rs</groupId>-->
+@@ -73,7 +92,7 @@
+ 		<dependency>
+ 			<groupId>org.apache.pdfbox</groupId>
+ 			<artifactId>pdfbox</artifactId>
+-			<version>1.8.13</version>
++			<version>2.0.12</version>
+ 		</dependency>
+ 		<dependency>
+ 			<groupId>org.springframework</groupId>
+@@ -86,6 +105,16 @@
+ 			<groupId>javax.mail</groupId>
+ 			<artifactId>javax.mail-api</artifactId>
+ 			<optional>true</optional>
++		</dependency>
++		<dependency>
++			<groupId>org.apache.pdfbox</groupId>
++			<artifactId>pdfbox</artifactId>
++			<version>2.0.26</version>
++		</dependency>
++		<dependency>
++			<groupId>org.apache.pdfbox</groupId>
++			<artifactId>pdfbox</artifactId>
++			<version>1.8.13</version>
+ 		</dependency>
+ 	</dependencies>
+ 
+Index: expriment/src/main/java/com/expriment/Controller/CDIOfferModuleController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- expriment/src/main/java/com/expriment/Controller/CDIOfferModuleController.java	(revision 5393696053ef7dee95117e0922b8184c2f2a967a)
++++ expriment/src/main/java/com/expriment/Controller/CDIOfferModuleController.java	(date 1682764033443)
+@@ -11,8 +11,6 @@
+ import org.springframework.stereotype.Controller;
+ import org.springframework.web.bind.annotation.*;
+ 
+-import java.util.List;
+-
+ @Controller
+ @RequestMapping(value = "/Offer")
+ public class CDIOfferModuleController {
+Index: user_service/user_service.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- user_service/user_service.iml	(date 1682760295857)
++++ user_service/user_service.iml	(date 1682760295857)
+@@ -0,0 +1,71 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="JAVA_MODULE" version="4">
++  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
++    <output url="file://$MODULE_DIR$/target/classes" />
++    <output-test url="file://$MODULE_DIR$/target/test-classes" />
++    <content url="file://$MODULE_DIR$">
++      <excludeFolder url="file://$MODULE_DIR$/target" />
++    </content>
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.6.4" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.6.4" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot:2.6.4" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-autoconfigure:2.6.4" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-logging:2.6.4" level="project" />
++    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.10" level="project" />
++    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.10" level="project" />
++    <orderEntry type="library" name="Maven: org.apache.logging.log4j:log4j-to-slf4j:2.17.1" level="project" />
++    <orderEntry type="library" name="Maven: org.slf4j:jul-to-slf4j:1.7.36" level="project" />
++    <orderEntry type="library" name="Maven: jakarta.annotation:jakarta.annotation-api:1.3.5" level="project" />
++    <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.29" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-json:2.6.4" level="project" />
++    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.13.1" level="project" />
++    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.13.1" level="project" />
++    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.13.1" level="project" />
++    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.13.1" level="project" />
++    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1" level="project" />
++    <orderEntry type="library" name="Maven: com.fasterxml.jackson.module:jackson-module-parameter-names:2.13.1" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-tomcat:2.6.4" level="project" />
++    <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-core:9.0.58" level="project" />
++    <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-el:9.0.58" level="project" />
++    <orderEntry type="library" name="Maven: org.apache.tomcat.embed:tomcat-embed-websocket:9.0.58" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework:spring-web:5.3.16" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework:spring-beans:5.3.16" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework:spring-webmvc:5.3.16" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework:spring-aop:5.3.16" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework:spring-context:5.3.16" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework:spring-expression:5.3.16" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-starter-test:2.6.4" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-test:2.6.4" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.springframework.boot:spring-boot-test-autoconfigure:2.6.4" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: com.jayway.jsonpath:json-path:2.6.0" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: net.minidev:json-smart:2.4.8" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: net.minidev:accessors-smart:2.4.8" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.ow2.asm:asm:9.1" level="project" />
++    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.36" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: jakarta.xml.bind:jakarta.xml.bind-api:2.3.3" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: jakarta.activation:jakarta.activation-api:1.2.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.assertj:assertj-core:3.21.0" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest:2.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter:5.8.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-api:5.8.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.opentest4j:opentest4j:1.2.0" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.junit.platform:junit-platform-commons:1.8.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.apiguardian:apiguardian-api:1.1.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-params:5.8.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-engine:5.8.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.junit.platform:junit-platform-engine:1.8.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-core:4.0.0" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: net.bytebuddy:byte-buddy:1.11.22" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: net.bytebuddy:byte-buddy-agent:1.11.22" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.objenesis:objenesis:3.2" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-junit-jupiter:4.0.0" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.skyscreamer:jsonassert:1.5.0" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: com.vaadin.external.google:android-json:0.0.20131108.vaadin1" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework:spring-core:5.3.16" level="project" />
++    <orderEntry type="library" name="Maven: org.springframework:spring-jcl:5.3.16" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.springframework:spring-test:5.3.16" level="project" />
++    <orderEntry type="library" scope="TEST" name="Maven: org.xmlunit:xmlunit-core:2.8.4" level="project" />
++  </component>
++</module>
+\ No newline at end of file
+Index: expriment/src/main/java/com/expriment/utils/EmailServicesImpl.java
+===================================================================
+--- expriment/src/main/java/com/expriment/utils/EmailServicesImpl.java	(revision 5393696053ef7dee95117e0922b8184c2f2a967a)
++++ expriment/src/main/java/com/expriment/service/serviceImpl/EmailServicesImpl.java	(date 1682764033421)
+@@ -1,140 +1,0 @@
+-/*
+-package com.expriment.utils;
+-
+-
+-import com.expriment.DAO.Impl.AuditDetailsUtility;
+-import com.expriment.entity.vo.AuditDetailsPayload;
+-import com.expriment.utils.audit.entity.SmsMailResponse;
+-import com.expriment.utils.audit.entity.vo.SmsMailPayload;
+-import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
+-import com.sun.xml.internal.messaging.saaj.packaging.mime.internet.MimeMultipart;
+-import org.apache.logging.log4j.LogManager;
+-import org.apache.logging.log4j.Logger;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.mail.javamail.JavaMailSender;
+-import org.springframework.mail.javamail.MimeMessageHelper;
+-import org.springframework.stereotype.Component;
+-
+-import javax.activation.DataHandler;
+-import javax.activation.DataSource;
+-import javax.activation.FileDataSource;
+-import javax.mail.BodyPart;
+-//import javax.mail.MessagingException;
+-import javax.mail.internet.MimeBodyPart;
+-import javax.mail.internet.MimeMessage;
+-import javax.mail.internet.MimeMultipart;
+-import java.util.Date;
+-
+-@Component
+-public class EmailServicesImpl implements EmailServices {
+-	
+-	Logger logger = LogManager.getLogger("EmailServicesImpl");
+-
+-	*/
+-/*@Autowired
+-	public TCLAPIsProps tclApisProps;
+-
+-	@Autowired
+-	public TCLServiceManager tclServiceManager;
+-*//*
+-
+-	@Autowired
+-	JavaMailSender javaMailSender;
+-
+-	@Autowired
+-	AuditDetailsUtility auditDetailsUtility;
+-
+-	public  static String fromMailId=" idevk995@gmail.com";
+-	
+-	@Override
+-	public SmsMailResponse sendMail(SmsMailPayload mailPayload) {
+-		logger.info("sendMail block");
+-		SmsMailResponse rootResponse = new SmsMailResponse(); 
+-		AuditDetailsPayload auditDetailsPayload = new AuditDetailsPayload();
+-		
+-		auditDetailsPayload.setLeadId(mailPayload.getLeadId());
+-		auditDetailsPayload.setApiName(ProjectConstants.MAIL_API_CUSTOMER_CARE);
+-		auditDetailsPayload.setPayload(mailPayload.getMessage());
+-		String conversationId = String.valueOf(new Date().getTime());
+-		auditDetailsPayload.setConversationId(conversationId);
+-		
+-		auditDetailsPayload.setRequestTime(new Date());
+-		MimeMessage message = javaMailSender.createMimeMessage();
+-		MimeMessageHelper helper = null;
+-		
+-		try {
+-			helper = new MimeMessageHelper(message,true);
+-		} catch (javax.mail.MessagingException e1) {
+-			e1.printStackTrace();
+-		}
+-		try {		
+-			helper.setFrom(fromMailId);
+-			helper.setSentDate(new Date());
+-			helper.setTo(mailPayload.getMailTo());
+-			helper.setSubject(mailPayload.getSubject());
+-					
+-			MimeMultipart mimeMultipart = new MimeMultipart();
+-		    MimeBodyPart messageBodyPart = new MimeBodyPart();
+-		    messageBodyPart.setContent(mailPayload.getMessage(), "text/html");
+-			
+-			mimeMultipart.addBodyPart(messageBodyPart);
+-			helper.addAttachment(mailPayload.getFileName(), mailPayload.getFile());
+-			
+-//			message.setContent(mimeMultipart);
+-			
+-			if(mailPayload != null && mailPayload.getFile() != null && mailPayload.getFile().exists()) {
+-				logger.info("inside attachment block");
+-				*/
+-/*FileSystemResource fr = new FileSystemResource(mailPayload.getFile());
+-				helper.addAttachment(mailPayload.getFile().getName(), fr);*//*
+-
+-				logger.info("CompleteFilePath: "+mailPayload.getCompleteFilePath());
+-				logger.info("File Name:"+mailPayload.getFile().getName());
+-				messageBodyPart = new MimeBodyPart();
+-				DataSource source = new FileDataSource(mailPayload.getCompleteFilePath());
+-				messageBodyPart.setDataHandler(new DataHandler(source));
+-				messageBodyPart.setFileName(mailPayload.getFile().getName());
+-				mimeMultipart.addBodyPart(messageBodyPart);
+-		        
+-				// Send the complete message parts
+-		        message.setContent(mimeMultipart);
+-			} else {
+-				logger.info("no attacgement");
+-			}
+-			
+-			javaMailSender.send(message);
+-			logger.info("Mail send Successfully");
+-			auditDetailsPayload.setResponse("Email sent successfully");
+-			auditDetailsPayload.setStatus(ProjectConstants.SUCCESS);
+-			rootResponse.setRetStatus(ProjectConstants.SUCCESS);
+-			//need to enable this code to delete file from disk 
+-			*/
+-/*if(mailPayload!=null && mailPayload.getFile()!=null && mailPayload.getFile().exists()) {
+-				mailPayload.getFile().delete();
+-			}*//*
+-
+-			
+-		} catch (MessagingException | javax.mail.MessagingException e) {
+-			e.printStackTrace();
+-			auditDetailsPayload.setResponse("Failed");
+-			auditDetailsPayload.setStatus("FAIL");
+-			auditDetailsPayload.setResponseTime(new Date());
+-			rootResponse.setSysErrorCode(ProjectConstants.DATA_NOT_FOUND_ERROR_CODE);
+-			rootResponse.setSysErrorMessage(ProjectConstants.API_FAIL);
+-			rootResponse.setRetStatus(ProjectConstants.FAIL);
+-		}
+-		if (mailPayload.getMailTo() == null || mailPayload.getMailTo() == "") {
+-			String response = "Email-Id not found!!!";
+-			auditDetailsPayload.setResponse(response);
+-		}
+-		auditDetailsPayload.setResponseTime(new Date());
+-		auditDetailsUtility.saveAuditDetails(auditDetailsPayload);
+-		
+-		return rootResponse;
+-	}
+-	
+-}
+-
+-
+-
+-*/
+Index: expriment/src/main/java/com/expriment/service/EmudraService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- expriment/src/main/java/com/expriment/service/EmudraService.java	(date 1682764033421)
++++ expriment/src/main/java/com/expriment/service/EmudraService.java	(date 1682764033421)
+@@ -0,0 +1,26 @@
++package com.expriment.service;
++
++import com.expriment.Testing.DocTypeData;
++import com.expriment.Testing.EmudraDocRequest;
++import com.expriment.Testing.EmudraRequest;
++import com.expriment.entity.vo.EmudraExternalResponse;
++import com.expriment.utils.audit.entity.vo.RootResponse;
++import org.springframework.http.ResponseEntity;
++
++import java.util.List;
++
++public interface EmudraService {
++    ResponseEntity<?> saveEmudraDocumentService(EmudraDocRequest emudraDocRequest);
++
++//    RootResponse saveDocForEmudra(List<DocTypeData> emudraDocRequest, String leadId, String customerHash);
++
++    RootResponse saveDocForEmudra(DocTypeData emudraDocRequest, String leadId, String customerHash);
++
++    EmudraRequest creatingEmudraRequest(String leadId);
++
++    EmudraExternalResponse eMudraService(String leadId, EmudraRequest emudraRequest);
++
++    void jobsForEmudraAndDmsEmails(List<String> request);
++
++//    SmsMailResponse sendMail(SmsMailPayload mailPayload);
++}
+Index: expriment/src/main/java/com/expriment/service/serviceImpl/EmudraServiceImpl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- expriment/src/main/java/com/expriment/service/serviceImpl/EmudraServiceImpl.java	(revision 5393696053ef7dee95117e0922b8184c2f2a967a)
++++ expriment/src/main/java/com/expriment/service/serviceImpl/EmudraServiceImpl.java	(date 1682764711211)
+@@ -16,6 +16,7 @@
+ import connectjar.org.apache.commons.codec.binary.Base64;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++
+ import org.apache.pdfbox.exceptions.COSVisitorException;
+ import org.apache.pdfbox.util.PDFMergerUtility;
+ import org.springframework.beans.factory.annotation.Autowired;
+@@ -78,7 +79,7 @@
+ 
+         try {
+             /*save all document whatever received from Database*/
+-            custmerHash= emudraDocRequest.getCustHash();
++            custmerHash= emudraDocRequest.getCustomerHash();
+             opportunityId= emudraDocRequest.getOpportunityId();
+ 
+             if (custmerHash !=null)
+@@ -96,8 +97,8 @@
+             }else  {
+                 logger.info("customerHas not persent in request.");
+                 rootResponse.setSysErrorMessage("customerHas or OpportunityId is missing.");
+-                rootResponse.setRetStatus(ProjectConstants.FAIL);
+-                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_ERROR_CODE);
++                rootResponse.setRetStatus(ProjectConstants.FAILURE);
++                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_SUCCESS_CODE);
+             }
+ 
+             if (offerModule.getPlLeadId() !=null)
+@@ -167,8 +168,8 @@
+             }else {
+                 logger.info("All document are not available now.");
+                 rootResponse.setSysErrorMessage("Necessary document are not available");
+-                rootResponse.setRetStatus(ProjectConstants.FAIL);
+-                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_ERROR_CODE);
++                rootResponse.setRetStatus(ProjectConstants.FAILURE);
++                rootResponse.setSysErrorCode(ProjectConstants.SYS_ERROR_CODE);
+             }
+ 
+         } catch (Exception e) {
+@@ -230,8 +231,8 @@
+ 
+             }else{
+                 logger.info("some necessary field is missing..");
+-                rootResponse.setRetStatus(ProjectConstants.FAIL);
+-                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_ERROR_CODE);
++                rootResponse.setRetStatus(ProjectConstants.FAILURE);
++                rootResponse.setSysErrorCode(ProjectConstants.SYS_ERROR_CODE);
+                 rootResponse.setSysErrorMessage("Some necessary field is missing like leadId, docType.");
+                 return rootResponse;
+             }
+@@ -607,7 +608,7 @@
+                 sfdcTdlDocResponse.setEsignDoc(esignBase64Data);
+                 sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
+                 sfdcTdlDocResponse.setUpdatedDate(new Date());
+-                sfdcTdlDocResponse.setEmudraStatus(ProjectConstants.FAIL);
++                sfdcTdlDocResponse.setEmudraStatus(ProjectConstants.FAILURE);
+             }
+             sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse);
+ 

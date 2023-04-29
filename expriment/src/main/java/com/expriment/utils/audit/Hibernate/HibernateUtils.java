@@ -1,5 +1,6 @@
 package com.expriment.utils.audit.Hibernate;
 
+import com.expriment.utils.audit.LoggerClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.*;
@@ -47,7 +48,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             //logger.info("getSession() : Hibernate Session Object ->> "+session);
             //return session;
         }catch(Exception e) {
-            logger.error("(:) Error While Getting Session Object (:)");
+            LoggerClass.appLayerLogger.error("(:) Error While Getting Session Object (:)");
             e.printStackTrace();
         }
         return null;
@@ -60,7 +61,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             SessionFactory sessionFactory = getSessionFactory();
             return sessionFactory.openSession();
         }catch(Exception e) {
-            logger.error("(:) Error While Getting Session Object (:) in openSession()");
+            LoggerClass.appLayerLogger.error("(:) Error While Getting Session Object (:) in openSession()");
             e.printStackTrace();
         }
         return null;
@@ -68,7 +69,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     }
 
     public void closeSession(Session session) {
-        //logger.info("closeSession() : Session Object ->> "+session);
+        //LoggerClass.appLayerLogger.info("closeSession() : Session Object ->> "+session);
         if(session != null) {
             session.close();
         }
@@ -76,7 +77,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
 
     public <T> T saveEntity(T entity) {
 
-        logger.info("saveEntity() : Entity Class ->> "+entity.getClass());
+        LoggerClass.appLayerLogger.info("saveEntity() : Entity Class ->> "+entity.getClass());
 
         Session session = null;
         Transaction tx = null;
@@ -88,7 +89,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             return entity;
 
         }catch(Exception e) {
-            logger.error("(:) Error in SaveEntity Method (:) ");
+            LoggerClass.appLayerLogger.error("(:) Error in SaveEntity Method (:) ");
             e.printStackTrace();
             if(tx != null )
                 tx.rollback();
@@ -100,7 +101,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
 
     public <T> T updateEntity(T entity) {
 
-        logger.info("updateEntity() : Entity Class ->> "+entity.getClass());
+        LoggerClass.appLayerLogger.info("updateEntity() : Entity Class ->> "+entity.getClass());
         Transaction tx =null;
         Session session = null;
         try {
@@ -111,7 +112,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             return entity;
 
         }catch(Exception e) {
-            logger.error("(:) Error in UpdateEntity Method (:) ");
+            LoggerClass.appLayerLogger.error("(:) Error in UpdateEntity Method (:) ");
             e.printStackTrace();
             if( tx != null )
                 tx.rollback();
@@ -123,7 +124,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
 
     public <T> T saveOrUpdateEntity(T entity) {
 
-        logger.info("saveOrUpdateEntity() : Entity Class ->> "+entity.getClass());
+        LoggerClass.appLayerLogger.info("saveOrUpdateEntity() : Entity Class ->> "+entity.getClass());
         Transaction tx = null;
         Session session = null;
         try {
@@ -134,7 +135,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             return entity;
 
         }catch(Exception e) {
-            logger.error("(:) Error in SaveOrUpdateEntity Method (:) ");
+            LoggerClass.appLayerLogger.error("(:) Error in SaveOrUpdateEntity Method (:) ");
             e.printStackTrace();
             if( tx != null )
                 tx.rollback();
@@ -147,7 +148,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> T deleteEntity(T entity, Serializable primaryId) {
 
-        logger.info("deleteEntity() : Entity Class ->> "+entity.getClass());
+        LoggerClass.appLayerLogger.info("deleteEntity() : Entity Class ->> "+entity.getClass());
         Transaction tx = null;
         Session session = null;
         try {
@@ -159,7 +160,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             return entity;
 
         }catch(Exception e) {
-            logger.error("(:) Error in DeleteEntity Method (:) ");
+            LoggerClass.appLayerLogger.error("(:) Error in DeleteEntity Method (:) ");
             if( tx != null )
                 tx.rollback();
             e.printStackTrace();
@@ -171,7 +172,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
 
     public String deleteEntityByHQL(String hqlQuery) {
 
-        logger.info("deleteEntityByCriteria() : HQL Query ->> "+hqlQuery);
+        LoggerClass.appLayerLogger.info("deleteEntityByCriteria() : HQL Query ->> "+hqlQuery);
 
         Session session = null;
         try {
@@ -180,7 +181,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             query.executeUpdate();
             return "SUCCESS"; //TODO : Need to uncomment above line
         }catch(Exception e) {
-            logger.error("(:) Error in deleteEntityByHQL Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in deleteEntityByHQL Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -191,7 +192,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
 
     public String deleteEntityByHQL(String hqlQuery,String setParamName, Collection setParamValue) {
 
-        logger.info("deleteEntityByCriteria() : HQL Query ->> "+hqlQuery+" set PropertyName"+setParamName+" setParamValues"+setParamValue);
+        LoggerClass.appLayerLogger.info("deleteEntityByCriteria() : HQL Query ->> "+hqlQuery+" set PropertyName"+setParamName+" setParamValues"+setParamValue);
 
         Session session = null;
         try {
@@ -201,7 +202,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             query.executeUpdate();
             return "SUCCESS"; //TODO : Need to uncomment above line
         }catch(Exception e) {
-            logger.error("(:) Error in deleteEntityByHQL Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in deleteEntityByHQL Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -213,7 +214,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> T findEntityById(Class<T> entityClass,Serializable primaryId) {
 
-        logger.info("getEntityById() : Entity Class ->> "+entityClass+" Primary ID ->>"+primaryId);
+        LoggerClass.appLayerLogger.info("getEntityById() : Entity Class ->> "+entityClass+" Primary ID ->>"+primaryId);
 
         Session session = null;
         try {
@@ -221,7 +222,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             Object dataObject = session.get(entityClass, primaryId);
             return (T) dataObject;
         }catch(Exception e) {
-            logger.error("(:) Error in getEntityById Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in getEntityById Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -233,7 +234,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> T findEntityByCriteria(Class<T> entityClass,String primaryPropertyName, Serializable primaryId) {
 
-        logger.info("getEntityByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyName ->> "+primaryPropertyName+" Primary ID ->>"+primaryId);
+        LoggerClass.appLayerLogger.info("getEntityByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyName ->> "+primaryPropertyName+" Primary ID ->>"+primaryId);
 
         Session session = null;
         try {
@@ -243,7 +244,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .uniqueResult();
             return (T) dataObject;
         }catch(Exception e) {
-            logger.error("(:) Error in GetEntityByCriteria Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in GetEntityByCriteria Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -255,7 +256,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> T findEntityByCriteria(Class<T> entityClass,String primaryPropertyName1,String primaryPropertyName2, Serializable primaryId1,Serializable primaryId2) {
 
-        logger.info("getEntityByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" & "+primaryPropertyName2+" Primary IDs ->>"+primaryId1+" & "+primaryId2);
+        LoggerClass.appLayerLogger.info("getEntityByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" & "+primaryPropertyName2+" Primary IDs ->>"+primaryId1+" & "+primaryId2);
 
         Session session = null;
         try {
@@ -266,7 +267,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .uniqueResult();
             return (T) dataObject;
         }catch(Exception e) {
-            logger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
             e.printStackTrace();
         }
         finally {
@@ -280,7 +281,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> T findEntityByCriteria(Class<T> entityClass, String primaryPropertyName1, String primaryPropertyName2, String primaryPropertyName3, Serializable primaryId1, Serializable primaryId2, Serializable primaryId3) {
 
-        logger.info("getEntityByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" & "+primaryPropertyName2+" & "+primaryPropertyName3+" Primary IDs ->>"+primaryId1+" & "+primaryId2+" & "+primaryId3);
+        LoggerClass.appLayerLogger.info("getEntityByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" & "+primaryPropertyName2+" & "+primaryPropertyName3+" Primary IDs ->>"+primaryId1+" & "+primaryId2+" & "+primaryId3);
 
         Session session = null;
         try {
@@ -292,7 +293,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .uniqueResult();
             return (T) dataObject;
         }catch(Exception e) {
-            logger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
             e.printStackTrace();
         }
         finally {
@@ -304,7 +305,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> T findEntityByOrCriteria(Class<T> entityClass,String primaryPropertyName1,String primaryPropertyName2, Serializable primaryId1,Serializable primaryId2) {
 
-        logger.info("getEntityByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" | "+primaryPropertyName2+" Primary IDs ->>"+primaryId1+" | "+primaryId2);
+        LoggerClass.appLayerLogger.info("getEntityByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" | "+primaryPropertyName2+" Primary IDs ->>"+primaryId1+" | "+primaryId2);
 
         Session session = null;
         try {
@@ -315,7 +316,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .uniqueResult();
             return (T) dataObject;
         }catch(Exception e) {
-            logger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
             e.printStackTrace();
         }
         finally {
@@ -327,14 +328,14 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> List<T> loadEntitiesByCriteria(Class<T> entityClass) {
 
-        logger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass);
+        LoggerClass.appLayerLogger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass);
 
         Session session = null;
         try {
             session = getSession();
             return (List<T>) session.createCriteria(entityClass).list();
         }catch(Exception e) {
-            logger.error("(:) Error in LoadEntitiesByCriteria Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in LoadEntitiesByCriteria Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -347,7 +348,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> List<T> loadEntitiesByCriteria(Class<T> entityClass,String primaryPropertyName1,String primaryPropertyName2, Serializable primaryId1,Serializable primaryId2) {
 
-        logger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" & "+primaryPropertyName2+" Primary IDs ->>"+primaryId1+" & "+primaryId2);
+        LoggerClass.appLayerLogger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" & "+primaryPropertyName2+" Primary IDs ->>"+primaryId1+" & "+primaryId2);
 
         Session session = null;
         try {
@@ -357,7 +358,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .add(Restrictions.eq(primaryPropertyName2, primaryId2))
                     .list();
         }catch(Exception e) {
-            logger.error("(:) Error in loadEntitiesByCriteria Method two columns (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in loadEntitiesByCriteria Method two columns (:)");
             e.printStackTrace();
         }
         finally {
@@ -369,7 +370,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> List<T> loadEntitiesByCriteria(Class<T> entityClass,String primaryPropertyName1,String primaryPropertyName2, String primaryPropertyName3, Serializable primaryId1,Serializable primaryId2, String primaryId3) {
 
-        logger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" & "+primaryPropertyName2+" & "+primaryPropertyName3+", Primary IDs ->>"+primaryId1+" & "+primaryId2+" & "+primaryId3);
+        LoggerClass.appLayerLogger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" PrimaryPropertyNames ->> "+primaryPropertyName1+" & "+primaryPropertyName2+" & "+primaryPropertyName3+", Primary IDs ->>"+primaryId1+" & "+primaryId2+" & "+primaryId3);
 
         Session session = null;
         try {
@@ -380,7 +381,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .add(Restrictions.eq(primaryPropertyName3, primaryId3))
                     .list();
         }catch(Exception e) {
-            logger.error("(:) Error in loadEntitiesByCriteria Method two columns (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in loadEntitiesByCriteria Method two columns (:)");
             e.printStackTrace();
         }
         finally {
@@ -393,7 +394,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> List<T> loadEntitiesByCriteria(Class<T> entityClass, List<ProjectionsDTO> projectionsList, List<RestrictionsDTO> restrictionsList) {
 
-        logger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" ProjectionsList ->> "+projectionsList);
+        LoggerClass.appLayerLogger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" ProjectionsList ->> "+projectionsList);
 
         Session session = null;
         try {
@@ -438,7 +439,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             return (List<T>) criteria.list();
 
         }catch(Exception e) {
-            logger.error("(:) Error in loadEntitiesByCriteria Method two columns (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in loadEntitiesByCriteria Method two columns (:)");
             e.printStackTrace();
         }
         finally {
@@ -450,7 +451,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> List<T> loadEntitiesByCriteria(Class<T> entityClass,String propertyName, Serializable serializableValue) {
 
-        logger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" PropertyName ->> "+propertyName+" Serializable Value ->>"+serializableValue);
+        LoggerClass.appLayerLogger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" PropertyName ->> "+propertyName+" Serializable Value ->>"+serializableValue);
 
         Session session = null;
         try {
@@ -459,7 +460,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .add(Restrictions.eq(propertyName, serializableValue))
                     .list();
         }catch(Exception e) {
-            logger.error("(:) Error in loadEntitiesByCriteria Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in loadEntitiesByCriteria Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -470,14 +471,14 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> List<T> loadEntitiesByHQL(String hqlQuery) {
 
-        logger.info("loadEntitiesByHQL() : HQL Query ->> "+hqlQuery);
+        LoggerClass.appLayerLogger.info("loadEntitiesByHQL() : HQL Query ->> "+hqlQuery);
 
         Session session = null;
         try {
             session = getSession();
             return (List<T>) session.createQuery(hqlQuery).list();
         }catch(Exception e) {
-            logger.error("(:) Error in LoadEntitiesByHQL Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in LoadEntitiesByHQL Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -488,7 +489,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
 
     public <T> Serializable findValueByPropertyName(Class<T> entityClass,String propertyName,Serializable propertyValue,String propertyNameValueToReturn) {
 
-        logger.info("findValueByPropertyName() : Entity Class ->> "+entityClass+" <<- Property Name ->>"+propertyName+" <<- Property Value ->> "+propertyValue+" <<- PropertyNameValue To Return ->> "+propertyNameValueToReturn);
+        LoggerClass.appLayerLogger.info("findValueByPropertyName() : Entity Class ->> "+entityClass+" <<- Property Name ->>"+propertyName+" <<- Property Value ->> "+propertyValue+" <<- PropertyNameValue To Return ->> "+propertyNameValueToReturn);
 
         Session session = null;
         try {
@@ -498,12 +499,12 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .add(Restrictions.eq(propertyName, propertyValue))
                     .uniqueResult();
 
-            logger.info("Serializable Single Value ->> "+returnedObject);
+            LoggerClass.appLayerLogger.info("Serializable Single Value ->> "+returnedObject);
 
             return (Serializable)returnedObject;
 
         }catch(Exception e) {
-            logger.error("(:) Error in findValueByPropertyName Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in findValueByPropertyName Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -514,7 +515,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
 
     public String updateEntityByHQL(String hqlQuery) {
 
-        logger.info("updateEntityByCriteria() : HQL Query ->> "+hqlQuery);
+        LoggerClass.appLayerLogger.info("updateEntityByCriteria() : HQL Query ->> "+hqlQuery);
 
         Session session = null;
         try {
@@ -524,7 +525,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             //return ReturnTypes.SUCCESS;
             return "SUCCESS"; //TODO : Need to uncomment above line
         }catch(Exception e) {
-            logger.error("(:) Error in UpdateEntityByHQL Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in UpdateEntityByHQL Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -536,7 +537,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> List<T> loadEntitiesByCriteria(Class<T> entityClass, ArrayList<String> projectionPropertyList, String propertyName, Serializable serializableValue) {
 
-        logger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" PropertyName ->> "+propertyName+" Serializable Value ->>"+serializableValue+" ProjectionPropertyList Size ->> "+projectionPropertyList.size());
+        LoggerClass.appLayerLogger.info("loadEntitiesByCriteria() : Entity Class ->> "+entityClass+" PropertyName ->> "+propertyName+" Serializable Value ->>"+serializableValue+" ProjectionPropertyList Size ->> "+projectionPropertyList.size());
 
         Session session = null;
         try {
@@ -551,7 +552,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .setResultTransformer(Transformers.aliasToBean(entityClass))
                     .list();
         }catch(Exception e) {
-            logger.error("(:) Error in loadEntitiesByCriteria Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in loadEntitiesByCriteria Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -564,7 +565,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
     @SuppressWarnings("unchecked")
     public <T> List<Map<String,Object>> loadEntitiesByCriteriaAsAliasToMap(Class<T> entityClass, ArrayList<String> projectionPropertyList, String propertyName, Serializable serializableValue) {
 
-        logger.info("loadEntitiesByCriteriaAsAliasToMap() : Entity Class ->> "+entityClass+" PropertyName ->> "+propertyName+" Serializable Value ->>"+serializableValue+" ProjectionPropertyList Size ->> "+projectionPropertyList.size());
+        LoggerClass.appLayerLogger.info("loadEntitiesByCriteriaAsAliasToMap() : Entity Class ->> "+entityClass+" PropertyName ->> "+propertyName+" Serializable Value ->>"+serializableValue+" ProjectionPropertyList Size ->> "+projectionPropertyList.size());
 
         Session session = null;
         try {
@@ -579,7 +580,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
                     .setResultTransformer(Transformers.ALIAS_TO_ENTITY_MAP)
                     .list();
         }catch(Exception e) {
-            logger.error("(:) Error in loadEntitiesByCriteria Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in loadEntitiesByCriteria Method (:)");
             e.printStackTrace();
         }
         finally {
@@ -596,7 +597,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             SQLQuery query = session.createSQLQuery(sqlQuery);
             return (List<Object[]>) query.list();
         } catch (Exception e) {
-            logger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
             e.printStackTrace();
         } finally {
             closeSession(session);
@@ -612,7 +613,7 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
             SQLQuery query = session.createSQLQuery(sqlQuery);
             return query.executeUpdate();
         } catch (Exception e) {
-            logger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in GetEntityByCriteria Method two columns (:)");
             e.printStackTrace();
         } finally {
             closeSession(session);
@@ -623,14 +624,14 @@ public class HibernateUtils/* extends OLPExceptionHandler*/ {
 //    @SuppressWarnings("unchecked")
     public <T>Object getEntitiesCountByCriteria(Class<T> entityClass) {
 
-        logger.info("getEntitiesCountByCriteria() : Entity Class ->> "+entityClass);
+        LoggerClass.appLayerLogger.info("getEntitiesCountByCriteria() : Entity Class ->> "+entityClass);
 
         Session session = null;
         try {
             session = getSession();
             return session.createCriteria(entityClass).setProjection(Projections.rowCount()).uniqueResult();
         }catch(Exception e) {
-            logger.error("(:) Error in getEntitiesCountByCriteria Method (:)");
+            LoggerClass.appLayerLogger.error("(:) Error in getEntitiesCountByCriteria Method (:)");
             e.printStackTrace();
         }
         finally {

@@ -4,6 +4,7 @@ import com.expriment.DAO.UserDetailsDao;
 import com.expriment.entity.UserDetails;
 import com.expriment.service.PersonalDetailsService;
 import com.expriment.utils.ProjectConstants;
+import com.expriment.utils.audit.LoggerClass;
 import com.expriment.utils.audit.entity.vo.ErrorResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.Date;
 
@@ -28,7 +31,7 @@ public class PersonalDetailsServiceImpl implements PersonalDetailsService {
         ErrorResponse errorResponse = new ErrorResponse();
 
         try {
-            logger.info("savePersonalDetails is Stared.");
+            LoggerClass.appLayerLogger.info("savePersonalDetails is Stared.");
 
            /* if (Integer.toString(userDetails.getCpId()).equalsIgnoreCase("null"))
                 userDetails.setCreatedDate(new Date());
@@ -39,13 +42,13 @@ public class PersonalDetailsServiceImpl implements PersonalDetailsService {
             userDetailsResponse = userDetailsDao.saveUserDetails(userDetails);
 
             if (userDetailsResponse == null){
-                errorResponse.setStatus(ProjectConstants.FAIL);
+                errorResponse.setStatus(ProjectConstants.FAILURE);
                 errorResponse.setErrorMessage(ProjectConstants.DATA_NOT_FOUND_MESSAGE);
                 errorResponse.setErrorCode(ProjectConstants.DATA_NOT_FOUND_ERROR_CODE);
 
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
             }
-            logger.info(" getPersonalDetails is Ended.");
+            LoggerClass.appLayerLogger.info(" getPersonalDetails is Ended.");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -59,17 +62,17 @@ public class PersonalDetailsServiceImpl implements PersonalDetailsService {
         UserDetails userDetailsResponse = new UserDetails();
         ErrorResponse errorResponse = new ErrorResponse();
         try {
-            logger.info(" getPersonalDetails is Stared.");
+            LoggerClass.appLayerLogger.info(" getPersonalDetails is Stared.");
 
             userDetailsResponse= userDetailsDao.getUserDetails(cpId);
 
             if (userDetailsResponse == null){
-                errorResponse.setStatus(ProjectConstants.FAIL);
+                errorResponse.setStatus(ProjectConstants.FAILURE);
                 errorResponse.setErrorMessage(ProjectConstants.DATA_NOT_FOUND_MESSAGE);
                 errorResponse.setErrorCode(ProjectConstants.DATA_NOT_FOUND_ERROR_CODE);
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
             }
-            logger.info(" getPersonalDetails is Ended.");
+            LoggerClass.appLayerLogger.info(" getPersonalDetails is Ended.");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,16 +85,18 @@ public class PersonalDetailsServiceImpl implements PersonalDetailsService {
         UserDetails userDetailsResponse = new UserDetails();
         ErrorResponse errorResponse = new ErrorResponse();
         try {
-            logger.info(" updatePersonalDetails is Stared.");
+            LoggerClass.appLayerLogger.info(" updatePersonalDetails is Stared.");
+
+            userDetails.setUpdateDate(new Date());
             userDetailsResponse= userDetailsDao.saveOrUpdateUserDteail(userDetails);
 
-            if (userDetailsResponse == null){
-                errorResponse.setStatus(ProjectConstants.FAIL);
+            if (ObjectUtils.isEmpty(userDetailsResponse)){
+                errorResponse.setStatus(ProjectConstants.FAILURE);
                 errorResponse.setErrorMessage(ProjectConstants.DATA_NOT_FOUND_MESSAGE);
                 errorResponse.setErrorCode(ProjectConstants.DATA_NOT_FOUND_ERROR_CODE);
                 return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
             }
-            logger.info(" updatePersonalDetails is Ended.");
+            LoggerClass.appLayerLogger.info(" updatePersonalDetails is Ended.");
 
         } catch (Exception e) {
             e.printStackTrace();

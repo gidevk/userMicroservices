@@ -8,13 +8,18 @@ public interface ProjectConstants {
          String  Exp_User = "expuser";
       }
 
-      public static final String SUCCESS ="Success";
-     public static final String FAIL ="Fail";
+     public static final String SUCCESS ="Success";
+     public static final String FAILURE ="Failure";
      public static final String API_FAIL ="API Fail";
-     public static final String DATA_NOT_FOUND_ERROR_CODE= "404";
-     public static final String EMUDRA_SYS_ERROR_CODE= "01";
+     public static String SYS_ERROR_CODE = "01";
+
+    public static final String DATA_NOT_FOUND_ERROR_CODE= "404";
+     public static final String EMUDRA_HashOrOppId_ERROR_CODE= "01";
      public static final String EMUDRA_SYS_SUCCESS_CODE= "02";
+     public static final String EMUDRA_DocData_ERROR_CODE= "03";
+
      public static final String DATA_NOT_FOUND_MESSAGE = "Data Not Found";
+     public static final String CPID_NOT_FOUND_MESSAGE = "CpId Not Found";
      public static final String EXCEPTION_OCCURRED = "Exception Occurred :: ";
 
     public static String MAIL_API_CUSTOMER_CARE = "MAIL_API_CUSTOMER_CARE";

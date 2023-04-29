@@ -10,7 +10,7 @@
 					 fileName="${log-path}/ApTest.log"
 					 filePattern="${log-path}-archive-%d{yyyy-MM-dd}-%i.gz">
 			<PatternLayout>
-				<pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %-5p C:%C{1} M:%M L:%L - %m%n</pattern>
+				<pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %t %-5p C:%C{1}  M:%M L:%L - %m%n</pattern>
 			</PatternLayout>
 			<Policies>
 				<OnStartupTriggeringPolicy />
@@ -26,7 +26,7 @@
 		</RollingFile>
 -->
 		<Console name="console" target="SYSTEM_OUT">
-			<PatternLayout ><pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %-5p C:%C{1} M:%M L:%L - %m%n</pattern></PatternLayout>
+			<PatternLayout ><pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %t %-5p C:%C{1}  M:%M L:%L - %m%n</pattern></PatternLayout>
 		</Console>
 	</Appenders>
 

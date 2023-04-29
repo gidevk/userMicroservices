@@ -1,3 +1,4 @@
+/*
 package com.expriment.pdfFIle;
 
 import java.io.*;
@@ -43,7 +44,8 @@ class Pdf {
         }
     }
 
-   /* public static byte[] mergePDF(List<byte[]> pdfFilesAsByteArray) throws DocumentException, IOException {
+   */
+/* public static byte[] mergePDF(List<byte[]> pdfFilesAsByteArray) throws DocumentException, IOException {
 
         ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Document document = null;
@@ -79,7 +81,8 @@ class Pdf {
         return outStream.toByteArray();
 
     }
-*/
+*//*
+
     public void createNew()
     {
         PDDocument document = null;
@@ -97,7 +100,8 @@ class Pdf {
         }
     }
 
-   /* public static boolean mergePDF(IContext context, List<FileDocument> documents, IMendixObject mergedDocument ) throws IOException{
+   */
+/* public static boolean mergePDF(IContext context, List<FileDocument> documents, IMendixObject mergedDocument ) throws IOException{
         if (getMergeMultiplePdfs_MaxAtOnce() <= 0 || documents.size() <= getMergeMultiplePdfs_MaxAtOnce()) {
 
             List<InputStream> sources = new ArrayList<>();
@@ -129,10 +133,12 @@ class Pdf {
             throw new IllegalArgumentException("MergeMultiplePDFs: you cannot merge more than " + getMergeMultiplePdfs_MaxAtOnce() +
                     " PDF files at once. You are trying to merge " + documents.size() + " PDF files.");
         }
-    }*/
+    }*//*
+
 
 
 }
+*/
 /*class pdf2{
     InputStream is1 = null;
 
@@ -191,5 +197,7 @@ class Pdf {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
           mergedPDF.save(baos);
-}*/
+}*//*
 
+
+*/

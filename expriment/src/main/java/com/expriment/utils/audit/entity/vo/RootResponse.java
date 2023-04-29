@@ -12,8 +12,25 @@ public class RootResponse implements java.io.Serializable {
 	private String retStatus;
 	private String sysErrorCode;
 	private String sysErrorMessage;
-	private String customerHash;
+	private String CustomerHash;
 	private String emiCardNumber;
+	private String opportunityId;
+    private  String source;
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+	public String getOpportunityId() {
+		return opportunityId;
+	}
+
+	public void setOpportunityId(String opportunityId) {
+		this.opportunityId = opportunityId;
+	}
 
 	public String getRetStatus() {
 		return retStatus;
@@ -40,10 +57,10 @@ public class RootResponse implements java.io.Serializable {
 		this.leadId = leadId;
 	}
 	public String getCustomerHash() {
-		return customerHash;
+		return CustomerHash;
 	}
 	public void setCustomerHash(String customerHash) {
-		this.customerHash = customerHash;
+		this.CustomerHash = customerHash;
 	}
 	public String getEmiCardNumber() {
 		return emiCardNumber;

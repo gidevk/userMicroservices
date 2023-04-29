@@ -15,8 +15,17 @@ public class EmudraDocRequest implements Serializable {
 
     List<DocTypeData> docTypeData;
     String leadId;
-    String custHash;
+    String CustomerHash;
     String opportunityId;
+    String source;
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
 
     public List<DocTypeData> getDocTypeData() {
         return docTypeData;
@@ -34,12 +43,12 @@ public class EmudraDocRequest implements Serializable {
         this.opportunityId = opportunityId;
     }
 
-    public String getCustHash() {
-        return custHash;
+    public String getCustomerHash() {
+        return CustomerHash;
     }
 
-    public void setCustHash(String custHash) {
-        this.custHash = custHash;
+    public void setCustomerHash(String customerHash) {
+        this.CustomerHash = customerHash;
     }
 
     public String getLeadId() {

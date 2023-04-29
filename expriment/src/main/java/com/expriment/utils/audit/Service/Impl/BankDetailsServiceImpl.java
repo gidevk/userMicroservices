@@ -50,7 +50,7 @@ public class BankDetailsServiceImpl implements BankDetailsService {
             if (!bankDetailsResponse.getBankId().equals(bankId)){
                 errorResponse.setErrorCode(ProjectConstants.DATA_NOT_FOUND_ERROR_CODE);
                 errorResponse.setErrorMessage(ProjectConstants.DATA_NOT_FOUND_MESSAGE);
-                errorResponse.setStatus(ProjectConstants.FAIL);
+                errorResponse.setStatus(ProjectConstants.FAILURE);
                 return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
             }
 
@@ -70,7 +70,7 @@ public class BankDetailsServiceImpl implements BankDetailsService {
            if (bankDetailsResponse.getBankId() == null){
                errorResponse.setErrorCode(ProjectConstants.DATA_NOT_FOUND_ERROR_CODE);
                errorResponse.setErrorMessage(ProjectConstants.DATA_NOT_FOUND_MESSAGE);
-               errorResponse.setStatus(ProjectConstants.FAIL);
+               errorResponse.setStatus(ProjectConstants.FAILURE);
                return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
            }
         } catch (Exception e) {

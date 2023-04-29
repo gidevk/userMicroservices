@@ -12,8 +12,8 @@ public class FileCodecBase64 {
     private static final boolean IS_CHUNKED = true;
 
 //    public static void main(String args[]) throws Exception {
-////        C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/istockphoto-537373196-612x612.pdf
-//        /* Encode a file and write the encoded output to a text file. */
+//        C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/istockphoto-537373196-612x612.pdf
+        /* Encode a file and write the encoded output to a text file. */
 //        encode("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/istockphoto-537373196-612x612.pdf" ,
 //                "C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/something-encoded.txt", IS_CHUNKED);
 //

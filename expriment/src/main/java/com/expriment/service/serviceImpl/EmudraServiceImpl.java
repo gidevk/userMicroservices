@@ -78,7 +78,7 @@ public class EmudraServiceImpl  {
 
         try {
             /*save all document whatever received from Database*/
-            custmerHash= emudraDocRequest.getCustHash();
+            custmerHash= emudraDocRequest.getCustomerHash();
             opportunityId= emudraDocRequest.getOpportunityId();
 
             if (custmerHash !=null)
@@ -96,8 +96,8 @@ public class EmudraServiceImpl  {
             }else  {
                 logger.info("customerHas not persent in request.");
                 rootResponse.setSysErrorMessage("customerHas or OpportunityId is missing.");
-                rootResponse.setRetStatus(ProjectConstants.FAIL);
-                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_ERROR_CODE);
+                rootResponse.setRetStatus(ProjectConstants.FAILURE);
+                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_SUCCESS_CODE);
             }
 
             if (offerModule.getPlLeadId() !=null)
@@ -167,8 +167,8 @@ public class EmudraServiceImpl  {
             }else {
                 logger.info("All document are not available now.");
                 rootResponse.setSysErrorMessage("Necessary document are not available");
-                rootResponse.setRetStatus(ProjectConstants.FAIL);
-                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_ERROR_CODE);
+                rootResponse.setRetStatus(ProjectConstants.FAILURE);
+                rootResponse.setSysErrorCode(ProjectConstants.SYS_ERROR_CODE);
             }
 
         } catch (Exception e) {
@@ -230,8 +230,8 @@ public class EmudraServiceImpl  {
 
             }else{
                 logger.info("some necessary field is missing..");
-                rootResponse.setRetStatus(ProjectConstants.FAIL);
-                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_ERROR_CODE);
+                rootResponse.setRetStatus(ProjectConstants.FAILURE);
+                rootResponse.setSysErrorCode(ProjectConstants.SYS_ERROR_CODE);
                 rootResponse.setSysErrorMessage("Some necessary field is missing like leadId, docType.");
                 return rootResponse;
             }
@@ -607,7 +607,7 @@ public class EmudraServiceImpl  {
                 sfdcTdlDocResponse.setEsignDoc(esignBase64Data);
                 sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
                 sfdcTdlDocResponse.setUpdatedDate(new Date());
-                sfdcTdlDocResponse.setEmudraStatus(ProjectConstants.FAIL);
+                sfdcTdlDocResponse.setEmudraStatus(ProjectConstants.FAILURE);
             }
             sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse);
 
