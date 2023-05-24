@@ -1107,24 +1107,24 @@ public class EmudraServiceImpl implements EmudraService {
         return null;
     }
 
-    public static void main(String[] args) throws IOException {
-        // Create a file
-        String fileName = "C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/example.txt";
-        File file = new File(fileName);
-        file.createNewFile();
-
-// Get the absolute path of the file
-        String filePath = file.getAbsolutePath();
-        LoggerClass.appLayerLogger.info("file path"+filePath);
-// Create a new directory
-        String newDirectoryName = "C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/new_directory";
-        File newDirectory = new File(newDirectoryName);
-        newDirectory.mkdir();
-
-// Create a new file in the new directory
-        String newFilePath = newDirectoryName + File.separator + "new_example.txt";
-        File newFile = new File(newFilePath);
-        newFile.createNewFile();
-
-    }
+//    public static void main(String[] args) throws IOException {
+//        // Create a file
+//        String fileName = "C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/example.txt";
+//        File file = new File(fileName);
+//        file.createNewFile();
+//
+//// Get the absolute path of the file
+//        String filePath = file.getAbsolutePath();
+//        LoggerClass.appLayerLogger.info("file path"+filePath);
+//// Create a new directory
+//        String newDirectoryName = "C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/new_directory";
+//        File newDirectory = new File(newDirectoryName);
+//        newDirectory.mkdir();
+//
+//// Create a new file in the new directory
+//        String newFilePath = newDirectoryName + File.separator + "new_example.txt";
+//        File newFile = new File(newFilePath);
+//        newFile.createNewFile();
+//
+//    }
 }
