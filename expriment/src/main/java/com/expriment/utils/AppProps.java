@@ -31,6 +31,17 @@ public class AppProps {
 	@Value("${tcl_pa_bcc_ids}")
 	private String bccMailIds;
 
+	@Value("${emudra.document.Esign.path}")
+	private String eMudraFilePath;
+
+	public String geteMudraFilePath() {
+		return eMudraFilePath;
+	}
+
+	public void seteMudraFilePath(String eMudraFilePath) {
+		this.eMudraFilePath = eMudraFilePath;
+	}
+
 	public String getHelloBose() {
 		return helloBose;
 	}

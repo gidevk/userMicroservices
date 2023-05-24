@@ -1,0 +1,331 @@
+package com.expriment.Controller;
+
+
+import com.expriment.entity.vo.NameMatchKarzaRequest;
+import com.expriment.entity.vo.NameMatchKarzaResponse;
+import com.expriment.entity.vo.karzaResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+
+@Component
+public class CKYCServiceImpl  {
+
+    /*@Autowired
+    TCLServiceManager tclServiceManager;
+
+    @Autowired
+    AuditDetailsUtility auditDetailsUtility;
+
+    @Autowired
+    AppCommonProps appCommonProps;
+
+    @Autowired
+    TCLAPIsProps tclApisProps;
+
+    @Autowired
+    CDIOfferModuleDataDAO cdiOfferModuleDataDAO;
+
+    @Autowired
+    PdfGenerationUtils generationUtils;
+
+    @Autowired
+    HVService hvService;
+
+    @Autowired
+    DocUploadRestService docUploadRestService;
+
+    @Autowired
+    public DocUploadServiceImpl docUploadServiceImpl;
+
+    @Autowired
+    static NameMatchingService nameMatchingService;*/
+
+    public static final Logger logger = LogManager.getLogger("CKYCServiceImpl.class");
+
+
+
+  /*  public static void main(String[] args) {
+        CKYCServiceImpl ckycService = new CKYCServiceImpl();
+        try {
+            checkingMachingDetails(12345667l);
+        } catch (Exception e) {
+            logger.error(e.getMessage() ,e);
+            e.printStackTrace();
+        }
+    }*/
+
+    public static void checkingMachingDetails(Long leadId) {
+        logger.info("Inside checkingMachingDetails----->>>");
+        String matchFaild = null;
+        boolean flag= true;
+        StringBuilder matchFailedError =new StringBuilder();
+
+//        CKYCDownloadResponse ckycDownAddressResp = tclServiceManager.getCommonService().getCKYCDownloadResponse(Long.valueOf(leadId));
+
+        if(true/*ckycDownAddressResp!=null*/) {
+            String firstName = "indradev";//ckycDownAddressResp.getCkycFirstName() !=null ? ckycDownAddressResp.getCkycFirstName() : "";
+            String middleName ="" ;//ckycDownAddressResp.getCkycMiddleName() !=null ? ckycDownAddressResp.getCkycMiddleName() : "";
+            String lastName = "kumar";//ckycDownAddressResp.getCkycLastName() !=null ? ckycDownAddressResp.getCkycLastName() : "";
+            String ckycName = firstName + " " + middleName + " " + lastName;
+            String pinCode = "500089";//ckycDownAddressResp.getCkycCorAddPin() !=null ? ckycDownAddressResp.getCkycCorAddPin() : null;
+            String dob = "10-05-1991";// ckycDownAddressResp.getCkycDob() !=null ? ckycDownAddressResp.getCkycDob() : null;
+//            CDIOfferModule offerModule = tclServiceManager.getCdiOfferModuleDataService().getOfferDataByPlLeadId(Long.valueOf(leadId));
+
+            if(pinCode!=null /*&& offerModule!=null && offerModule.getCustomerPincode()!=null*/) { //pincode
+                if(!pinCode.equalsIgnoreCase("500089"/*offerModule.getCustomerPincode()*/)) {
+                    logger.info("Pin code match failed");
+                    //matchFaild = "PINCODE_MATCH";
+                    matchFailedError =matchFailedError.append( ",PINCODE_MISMATCH");
+                    //have to drop here.
+                    flag= false;
+                }
+            }
+
+            if(dob!=null /*&& offerModule!=null && offerModule.getCustomerEnteredDob()!=null */&& flag) {
+                String ckycDob = null;
+                String offerModuledob2 = null;
+                try {
+
+                    logger.info("CKYC date before format : "  + dob);
+                    Date ckycDate = new SimpleDateFormat("dd-MM-yyyy").parse(dob);
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
+                    ckycDob = format.format(ckycDate);
+                    logger.info("CKYC date after format : "  + ckycDob);
+
+                    Date offerModuledob = new SimpleDateFormat("dd-MM-yyyy").parse("10-05-1992");//offerModule.getCustomerEnteredDob();
+                    logger.info("offer module date before format : " + offerModuledob);
+                    offerModuledob2 = format.format(offerModuledob);
+                    logger.info("offer module date after format : "  + offerModuledob2);
+                } catch (Exception e) {
+                    logger.info("Exception while dob match failed ..",e);
+                    matchFailedError =matchFailedError.append( ",DOB_MISMATCH");
+
+                }
+
+                logger.info("ckycDob and dobofferModule : " +ckycDob +"====>" +offerModuledob2);
+
+                if(!ckycDob.equals(offerModuledob2)) {
+                    logger.info("dob match failed");
+                    matchFailedError =matchFailedError.append( ",DOB_MISMATCH");
+                    //drop customer
+                    flag= false;
+                }
+            }
+            //CKYCStatus ckycStatus= tclServiceManager.commonService.getCKYCStatus(leadId);
+
+            if( ckycName != null/* && offerModule != null  && offerModule.getCustomerName() != null*/ && flag) {
+                //here we are checking the okycname and offermodule customerName
+               /* Map<String, Boolean> customerNameMatchResponse = nameMatchingService.nameMatchingApi(ckycName,offerModule.getCustomerName(),leadId.toString(),offerModule);
+                if(customerNameMatchResponse != null) {
+                    Boolean exception = customerNameMatchResponse.get("exception");
+                    Boolean proceed = customerNameMatchResponse.get("proceed");
+
+                    if(exception != null && exception){
+                        logger.error("Exception occured while customer name match for CKYC service---------------->");
+                        matchFailedError =matchFailedError.append( ",NAME_MISMATCH");
+                    }else if(proceed != null && !proceed){
+                        logger.error("customer name match failed for CKYC service---------------->");
+                        matchFailedError =matchFailedError.append( ",NAME_MISMATCH");
+                    } else {
+                        logger.error(" name match success for CKYC service---------------->");
+                    }*/
+                NameMatchKarzaRequest nameMatchKarzaRequest = new NameMatchKarzaRequest();
+
+                nameMatchKarzaRequest.setCustomerHash("customerHash1");//offerModule.getCustomerHash());
+                nameMatchKarzaRequest.setName(ckycName.trim());
+                nameMatchKarzaRequest.setPlWebtopId("webtop123");//offerModule.getPlWebTopId());
+                nameMatchKarzaRequest.setPlLeadId(leadId.toString());
+
+                NameMatchKarzaResponse nameMatchKarzaResponse = NameMatchKarza(nameMatchKarzaRequest);
+                if(nameMatchKarzaResponse != null) {
+                    /* if(!nameMatchKarzaResponse.getRetStatus().equalsIgnoreCase("SUCCESS")*//*&&
+                    nameMatchKarzaResponse.getResponse().getScore() == 00l*//*){
+                        logger.error("customer name match RetStatus not Success for CKYC service");
+                        matchFailedError =matchFailedError.append( ",NAME_MISMATCH");
+                    }else */
+                    if(!nameMatchKarzaResponse.getRetStatus().equalsIgnoreCase("SUCCESS")
+                            ||nameMatchKarzaResponse.getResponse().getScore() <= 0.6f){
+                        logger.error("customer name match failed because of score is < 60 % OR RetStatus not Success in CKYC service");
+                        matchFailedError =matchFailedError.append( ",NAME_MISMATCH");
+                    } else {
+                        logger.error(" name match success for CKYC service");
+                    }
+                } else {
+                    logger.error("customer name match response is null in CKYC service ");
+                }
+            }
+            if(matchFailedError.length()>0) {
+                matchFailedError.deleteCharAt(0);
+                logger.info("Final matchFailedError : "+ matchFailedError);
+//                saveOrUpdateCKYCStatus(leadId, APINameConstants.CKYC_DOWNLOAD, "ERRMM01",
+//                        matchFailedError.toString());
+            }
+        }
+    }
+
+    public static NameMatchKarzaResponse NameMatchKarza(NameMatchKarzaRequest request){
+
+        RestTemplate restTemplate = new RestTemplate();
+        NameMatchKarzaResponse response = new NameMatchKarzaResponse();
+        String karzaURL;
+        String conversationId = String.valueOf(new Date().getTime());
+
+        try {
+         /*   final String proxyUrl = appCommonProps.getProxyIpaddress();
+            final int port = appCommonProps.getProxyPort();
+            Boolean enabledProxy = appCommonProps.getEnableProxy();
+
+            logger.info("Enabled proxy is set to {}",enabledProxy);*/
+          /*  karzaURL=tclAPIsProps.getKarzaUrl();
+
+            logger.info("karza api URL {}",karzaURL);
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+
+            headers.set("Content-Type", "application/json");
+            headers.add("Authorization", "Basic MTNlMzkxNzY6am9jYXRhdWF0");
+            headers.add("ConversationID", conversationId);
+            headers.add("SourceName", "Jocata");
+            logger.info("headers: "+headers);
+
+            HttpEntity<?> httpEntity = new HttpEntity<>(request, headers);
+
+           response= restTemplate.postForObject(karzaURL, httpEntity, NameMatchKarzaResponse.class);
+*/
+            karzaResponse karzaResponse= new karzaResponse();
+            karzaResponse.setCustomerHash("customerhash");
+            karzaResponse.setErrorCode("200");
+            karzaResponse.setErrorMessage("error message");
+            karzaResponse.setErrorReason("Error reason");
+            karzaResponse.setPlLeadId("123456");
+            karzaResponse.setScore(0.67);
+            karzaResponse.setPlWebtopId("webtopId");
+
+            response.setResponse(karzaResponse);
+            response.setRetStatus("Success");
+
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    /*private boolean handlingCKYCDownloadErrorResponse(A51DownloadCkycResponse response, Long leadId, CKYCRootResponse rootResponse) {
+        boolean status=false;
+        if(response!=null && (StringUtils.equalsIgnoreCase(response.getRetStatus(),"ERROR") ||
+                (response.getDownloadFromCkycResponseDetails()!=null && response.getDownloadFromCkycResponseDetails().getCkycDownloadResponseDetail()!=null &&
+                        !StringUtils.equalsIgnoreCase(response.getDownloadFromCkycResponseDetails().getCkycDownloadResponseDetail().getTransactionStatus(),"CKYCSuccess")))) {
+            status=true;
+            String rejectionReason=(!StringUtils.equalsIgnoreCase(response.getDownloadFromCkycResponseDetails().getCkycDownloadResponseDetail().getTransactionStatus(),"CKYCSuccess"))
+                    ? response.getDownloadFromCkycResponseDetails().getCkycDownloadResponseDetail().getTransactionRejectionDesciption()
+                    : response.getSysErrorMessage().toString();
+            String rejectionCode=(!StringUtils.equalsIgnoreCase(response.getDownloadFromCkycResponseDetails().getCkycDownloadResponseDetail().getTransactionStatus(),"CKYCSuccess"))
+                    ? response.getDownloadFromCkycResponseDetails().getCkycDownloadResponseDetail().getTransactionRejectionCode()
+                    : response.getSysErrorCode().toString();
+            saveOrUpdateCKYCStatus(leadId,APINameConstants.CKYC_DOWNLOAD,rejectionCode,rejectionReason);
+            rootResponse.setRetStatus(response.getRetStatus());
+            CallStatus callStatus = new CallStatus();
+            callStatus.setStatusCode(rejectionCode);
+            callStatus.setStatusMessage(rejectionReason);
+            rootResponse.setStatus(callStatus);
+        }
+        return status;
+    }
+*/
+   /* public void saveOrUpdateCKYCStatus(Long leadId, String apiName, String rejectionCode, String rejectionReason) {
+        CKYCStatus cKycStatus;
+        cKycStatus = tclServiceManager.getCommonService().getCKYCStatus(leadId);
+        if(cKycStatus == null) {
+            logger.error("No any record found in DB for lead Id :"+ leadId);
+            cKycStatus = new CKYCStatus();
+            cKycStatus.setLeadId(leadId);
+        }
+        cKycStatus.setApiName(apiName);
+        cKycStatus.setRejectionCode(rejectionCode);
+        cKycStatus.setRejectionReason(rejectionReason);
+        tclServiceManager.commonService.saveCKYCStatus(cKycStatus);
+    }*/
+
+   /* @SuppressWarnings("unused")
+	private void callDmsPushService(UploadDoc uploadDoc, String appId) {
+    	logger.info("Sending uploading doc to DMS : Start "+ uploadDoc.getDocId() + " ,"+ uploadDoc.getDocUploadName() );
+    	DocUploadPayload docUploadPayload = new DocUploadPayload();
+
+        CDIOfferModule offerModule= cdiOfferModuleDataDAO.getOfferDataByPlLeadId(Long.valueOf(appId));
+        CKYCRootResponse rootResponse = new CKYCRootResponse();
+        docUploadPayload.setDocId(uploadDoc.getDocId());
+        docUploadPayload.setMobileNumber(offerModule.getMobileNo()+"");
+        docUploadPayload.setLeadId(appId);
+        docUploadPayload.setWebtopNo(offerModule.getPlWebTopId());
+        docUploadPayload.setDocUploadType(uploadDoc.getDocUploadType());
+        docUploadPayload.setDocUploadName(uploadDoc.getDocUploadName());
+
+        String fileUploadPath = uploadDoc.getDocUploadBase64();
+		File file = new File(fileUploadPath);
+		byte[] base64;
+		try {
+			base64 = Base64.encodeBase64(FileUtils.readFileToByteArray(file));
+		       docUploadPayload.setBase64(new String(base64,StandardCharsets.US_ASCII));
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+            logger.error("Exception in callDmsPushService()", e);
+            savingExceptionDetails(APINameConstants.CKYC_DOWNLOAD, offerModule.getPlLeadId(), rootResponse);
+		}
+
+        try {
+			logger.info("DocUploadPayload ->: " + objectMapper.writeValueAsString(docUploadPayload));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+            logger.error("Exception in callDmsPushService()", e);
+            savingExceptionDetails(APINameConstants.CKYC_DOWNLOAD, offerModule.getPlLeadId(), rootResponse);
+        }
+		DocUploadResponse documentUploadResponse = docUploadServiceImpl.uploadDocV2(docUploadPayload);
+        if (documentUploadResponse != null && documentUploadResponse.getRetStatus() != null) {
+        	logger.info("Upload Doc sucess");
+        }
+    	logger.info("Sending uploading doc to DMS : Ends "+uploadDoc.getDocId());
+
+    }*/
+
+   /* public String removeSplChar(String data) {
+        ValidationUtils validationUtils = new ValidationUtils();
+        boolean check = false;
+        String field = data;
+        check = validationUtils.validateField("[^a-zA-Z0-9 ]", field);
+        if (check) {
+            field = field.replaceAll("[^a-zA-Z0-9 ]", "") + " ";
+            return field;
+        }
+        return data;
+    }
+
+    private HttpHeaders generateHeaders(AuditDetailsPayload auditDetailsPayload) {
+        HttpHeaders headers = new HttpHeaders();
+        String conversationId = String.valueOf(new Date().getTime());
+
+        List<TclConstant> tclConstants = tclServiceManager.getCommonService().getAllTclConstantsUsingApiName(APINameConstants.CKYC_DOWNLOAD);
+        if (!CollectionUtils.isEmpty(tclConstants)) {
+            Map<String, String> credentials = tclConstants.stream().collect(Collectors.toMap(TclConstant::getConstantName, TclConstant::getWebConstantValue));
+            headers.set("Accept-Encoding", "gzip,deflate");
+            headers.set("Authorization", credentials.get("CKYC_AUTHORIZATION"));
+            headers.set("SourceName", credentials.get("CREATE_DMS_FOLDER_SOURCENAME"));
+        }
+        headers.set("ConversationID", conversationId);
+        headers.setContentType(MediaType.APPLICATION_XML);
+        auditDetailsPayload.setConversationId(conversationId);
+        return headers;
+    }*/
+}

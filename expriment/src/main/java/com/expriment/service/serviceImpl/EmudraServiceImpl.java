@@ -4,20 +4,26 @@ import com.expriment.DAO.CDIOfferModuleDataDAO;
 import com.expriment.DAO.Impl.AuditDetailsUtility;
 import com.expriment.DAO.UploadDocDAO;
 import com.expriment.Testing.*;
-import com.expriment.entity.AuditDetails;
 import com.expriment.entity.CDIOfferModule;
 import com.expriment.entity.UploadDoc;
 import com.expriment.entity.vo.AuditDetailsPayload;
 import com.expriment.entity.vo.DocUploadPayload;
 import com.expriment.entity.vo.EmudraExternalResponse;
+import com.expriment.service.EmudraService;
+import com.expriment.utils.AppProps;
+import com.expriment.utils.FileResponse;
+import com.expriment.utils.PdfGenerationUtils;
 import com.expriment.utils.ProjectConstants;
+import com.expriment.utils.audit.LoggerClass;
+import com.expriment.utils.audit.entity.vo.DocUploadResponse;
 import com.expriment.utils.audit.entity.vo.RootResponse;
 import com.expriment.utils.audit.entity.vo.SmsMailPayload;
-import connectjar.org.apache.commons.codec.binary.Base64;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.util.PDFMergerUtility;
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -25,29 +31,33 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
-public class EmudraServiceImpl  {
+public class EmudraServiceImpl implements EmudraService {
     final Logger logger= LogManager.getLogger("EmudraServiceImpl");
+
+    ObjectMapper objMapper = new ObjectMapper();
 
    /* @Autowired
     TCLServiceManager tclServiceManager;
 
     @Autowired
     DocUploadService docUploadService;
-
-    @Autowired
-    EmailServices emailServices;
 */
+//    @Autowired
+//    EmailServices emailServices;
+
     @Autowired
     CDIOfferModuleDataDAO cdiOfferModuleDataDAO;
 
@@ -60,115 +70,277 @@ public class EmudraServiceImpl  {
     @Autowired
     AuditDetailsUtility auditDetailsUtility;
 
+    @Autowired
+    PdfGenerationUtils pdfGenerationUtils;
+
+//    @Autowired
+    AppProps appProps;
 
     static String basePath="C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/";
 
-//    @Override
+    //    String basePath;
+    @Override
     public ResponseEntity<?> saveEmudraDocumentService(EmudraDocRequest emudraDocRequest){
 
         String leadId = null,opportunityId,custmerHash;
-        SfdcTdlDocResponse sfdcTdlDocResponse=new SfdcTdlDocResponse();
         CDIOfferModule offerModule= new CDIOfferModule();
         RootResponse rootResponse= new RootResponse();
-        RootResponse rootResponse1= new RootResponse();
-        boolean kfsAvailable=false;
-        String base64KfsDoc = null;
-        EmudraExternalResponse emudraExternalResponse = new EmudraExternalResponse();
-        EmudraRequest emudraRequest= new EmudraRequest();
+        RootResponse response= new RootResponse();
 
         try {
             /*save all document whatever received from Database*/
             custmerHash= emudraDocRequest.getCustomerHash();
             opportunityId= emudraDocRequest.getOpportunityId();
 
-            if (custmerHash !=null)
+            if (custmerHash !=null )
                 rootResponse.setCustomerHash(custmerHash);
-            else if(opportunityId !=null){
-                rootResponse.setCustomerHash(opportunityId);
+            if(opportunityId !=null)
+                rootResponse.setOpportunityId(opportunityId);
+
+            rootResponse.setRetStatus(ProjectConstants.API_FAIL);
+
+            if (emudraDocRequest.getSource() !=null) {
+                if (emudraDocRequest.getSource().trim().equalsIgnoreCase("tdl") || emudraDocRequest.getSource().trim().equalsIgnoreCase("sfdc")) {
+                    logger.info("Source is "+emudraDocRequest.getSource());
+                }
+                else{
+                    logger.info("Source is Not tdl or sfdc.");
+                    rootResponse.setSource(emudraDocRequest.getSource());
+                    rootResponse.setSysErrorMessage("Source is Not TDL or SFDC");
+                    rootResponse.setSysErrorCode("04");
+                    return new ResponseEntity<>(rootResponse, HttpStatus.OK);
+                }
+                rootResponse.setSource(emudraDocRequest.getSource());
+            }
+            else{
+                logger.info("Source Not received.");
+                rootResponse.setSource(emudraDocRequest.getSource());
+                rootResponse.setSysErrorMessage("Source not received");
+                rootResponse.setSysErrorCode("04");
+
+                return new ResponseEntity<>(rootResponse, HttpStatus.OK);
             }
 
-            if (custmerHash !=null){
-                offerModule = cdiOfferModuleDataDAO.getOfferDataByCustomerHashNew(custmerHash);
+            if (custmerHash !=null && opportunityId == null){
+                if (!StringUtils.isEmpty(custmerHash.trim())){
+                    offerModule = cdiOfferModuleDataDAO.getOfferDataByCustomerHashNew(custmerHash);
+
+                    if (offerModule == null){
+//                        rootResponse.setSysErrorMessage("Customer hash is not present in Db");
+                        rootResponse.setSysErrorMessage("Unique customer not found in db for given customerhash");
+                        rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                        logger.info("TestCase 1");
+                        return new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                    }
+                    opportunityId=offerModule.getPlOpportunityId();
+                }
+                else{
+                    rootResponse.setSysErrorMessage("Customer hash is not valid");
+                    rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                    rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+                    rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId()));
+                    logger.info("TestCase 2");
+                    return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                }
                 opportunityId= offerModule.getPlOpportunityId();
-            }else if(opportunityId != null) {
-                offerModule = cdiOfferModuleDataDAO.getOfferDataByPlOpportunityId(opportunityId);
-                custmerHash= offerModule.getCustomerHashNew();  /*In offerMudel customer plleadId, customerHash, OpportutnityId ,getEmailAddress must be there*/
-            }else  {
-                logger.info("customerHas not persent in request.");
-                rootResponse.setSysErrorMessage("customerHas or OpportunityId is missing.");
-                rootResponse.setRetStatus(ProjectConstants.FAILURE);
-                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_SUCCESS_CODE);
-            }
 
+            }
+            else if(opportunityId != null && custmerHash ==null) {
+                if (!StringUtils.isEmpty(opportunityId.trim())){
+                    offerModule = cdiOfferModuleDataDAO.getOfferDataByPlOpportunityId(opportunityId);
+
+                    if (offerModule == null){
+//                        rootResponse.setSysErrorMessage("opportunityId is not present in Db  ");
+                        rootResponse.setSysErrorMessage("Unique customer not found in db for given opportunityId");
+                        rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                        rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+                        rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId()));
+                        logger.info("TestCase 3");
+                        return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                    }
+                    custmerHash=offerModule.getCustomerHash();
+                }
+                else{
+                    rootResponse.setSysErrorMessage("opportunityId is not valid");
+                    rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                    rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+                    rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId()));
+                    logger.info("TestCase 4");
+                    return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                }
+                custmerHash= offerModule.getCustomerHash();  /*In offerMudel customer plleadId, customerHash, OpportutnityId ,getEmailAddress must be there*/
+            }
+            else if (custmerHash != null && opportunityId != null){
+
+                if (!StringUtils.isEmpty(custmerHash.trim()) && StringUtils.isEmpty(opportunityId.trim())){
+//                    if (!StringUtils.isEmpty(custmerHash.trim())){
+                    offerModule = cdiOfferModuleDataDAO.getOfferDataByCustomerHashNew(custmerHash);
+
+                    if (offerModule == null){
+//                            rootResponse.setSysErrorMessage("OpportunityId and CustomerHash are not valid either null or empty");
+                        rootResponse.setSysErrorMessage("Unique customer not found in db for given customerHash");
+                        rootResponse.setRetStatus(ProjectConstants.FAILURE);
+                        rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                        logger.info("TestCase 51");
+                        return new ResponseEntity<>(rootResponse,HttpStatus.OK);
+
+                    }else {
+//                            rootResponse.setSysErrorMessage("OpportunityId is not valid either null or empty");
+                        rootResponse.setRetStatus(ProjectConstants.SUCCESS);
+                    }
+//                            rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+//                            rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+//                            rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId());
+                    logger.info("TestCase 5");
+//                            return new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                    opportunityId= offerModule.getPlOpportunityId();
+                }
+                else if(StringUtils.isEmpty(custmerHash.trim()) && !StringUtils.isEmpty(opportunityId.trim())){
+                    offerModule = cdiOfferModuleDataDAO.getOfferDataByPlOpportunityId(opportunityId);
+
+                    if (offerModule == null){
+                        rootResponse.setSysErrorMessage("Unique customer not found in db for given OpportunityId");
+                        rootResponse.setRetStatus(ProjectConstants.FAILURE);
+                        rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                        logger.info("TestCase 051");
+                        return new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                    }else {
+//                            rootResponse.setSysErrorMessage("Customer Hash is not valid either null or empty");
+                        rootResponse.setRetStatus(ProjectConstants.SUCCESS);
+                    }
+//                        rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+//                        rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+//                        rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId());
+                    logger.info("TestCase 6");
+//                        return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+
+                    custmerHash= offerModule.getCustomerHash();  /*In offerMudel customer plleadId, customerHash, OpportutnityId ,getEmailAddress must be there*/
+
+                }
+                else if (StringUtils.isEmpty(custmerHash.trim()) && StringUtils.isEmpty(opportunityId.trim())){
+                    logger.info("customerHash not present in request");
+                    rootResponse.setSysErrorMessage("customerHash and OpportunityId both are not valid either null or empty");
+                    rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                    rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+                    rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId()));
+                    logger.info("TestCase 7");
+                    return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                }
+                else if(!StringUtils.isEmpty(custmerHash.trim()) && !StringUtils.isEmpty(opportunityId.trim())){
+                    offerModule =cdiOfferModuleDataDAO.getOfferDataByCustomerHash(custmerHash);
+
+                    if (!StringUtils.isEmpty(offerModule)){
+                        if (opportunityId.trim().equals(offerModule.getPlOpportunityId())){
+                            rootResponse.setRetStatus(ProjectConstants.SUCCESS);
+                        }else{
+
+
+                            logger.info("CustomerHash and OpportunityId not matching with same customer.");
+                            rootResponse.setSysErrorMessage("customerHash and opportunityId both are not matching with same customer");
+                            rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                            rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+                            rootResponse.setOpportunityId(emudraDocRequest.getOpportunityId());
+                            logger.info("TestCase 8");
+                            return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                        }
+                    }
+                    else if(StringUtils.isEmpty(offerModule)){
+                        offerModule= cdiOfferModuleDataDAO.getOfferDataByPlOpportunityId(opportunityId);
+
+                        if(!StringUtils.isEmpty(offerModule) ){
+                            logger.info("OpportunityId and customerHash not matching with same customer.TestCase 9");
+                            rootResponse.setSysErrorMessage("OpportunityId and customerHash both are not matching with same customer");
+//                            rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+//                            rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+//                            rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId());
+//                            logger.info("TestCase 9");
+//                            return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                            custmerHash=offerModule.getCustomerHash();
+                        }
+                        else if (StringUtils.isEmpty(offerModule)){
+                            logger.info("OpportunityId and CustomerHash both are not valid.");
+                            rootResponse.setSysErrorMessage("OpportunityId and CustomerHash both are not valid");
+                            rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                            rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+                            rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId()));
+                            logger.info("TestCase 11");
+                            return new ResponseEntity<>(rootResponse, HttpStatus.OK);
+                        }
+                    }
+
+                }
+
+            }
+            else{
+                logger.info("customerHash not present in request");
+                rootResponse.setSysErrorMessage("customerHash And OpportunityId both are missing");
+                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_HashOrOppId_ERROR_CODE);
+                rootResponse.setCustomerHash(emudraDocRequest.getCustomerHash());
+                rootResponse.setOpportunityId((emudraDocRequest.getOpportunityId()));
+                logger.info("TestCase 10");
+                return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+            }
             if (offerModule.getPlLeadId() !=null)
                 leadId= String.valueOf(offerModule.getPlLeadId());
 
+            rootResponse.setCustomerHash(custmerHash);
+            rootResponse.setOpportunityId((opportunityId));
             rootResponse.setLeadId(leadId);
+//            FileResponse fileResponse = pdfGenerationUtils.convertBase64StringToFile(emudraDocRequest,"esignDmsRequest" , "1234");
 
-            logger.info("customerhash {}, opportunityid {} and leadid {}",custmerHash,opportunityId,leadId);// for testing
+            logger.info("customerhash {}, opportunityid {} and leadid {}",custmerHash,opportunityId,leadId);
 
             List<DocTypeData> docTypeDataList= emudraDocRequest.getDocTypeData();
-            if(custmerHash !=null || opportunityId !=null ){
+            if((custmerHash !=null || opportunityId !=null) && docTypeDataList.size() >0 ){
                 for (DocTypeData doc :docTypeDataList){
-                    if (doc.getDoc() !=null && doc.getDocType() != null) {
-//                        if (doc.getLeadId()== null){doc.setLeadId(leadId); }
 
-                        rootResponse1= saveDocForEmudra(doc,leadId,custmerHash);
-                        logger.info("Saved docuementType {} with Status {}",doc.getDocType(), rootResponse1.getRetStatus());
+                    if (doc.getDocType() != null && !StringUtils.isEmpty(doc.getDocType().trim()) && doc.getDoc() != null && !StringUtils.isEmpty(doc.getDoc().trim())){
+                        switch (doc.getDocType().toLowerCase().trim()){
+                            case "sl":
+                                break;
+                            case "tc":
+                                break;
+                            case "la":
+                                break;
+                            default:
+                                rootResponse.setSysErrorMessage("docType not valid");
+                                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_DocData_ERROR_CODE);
+                                return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+
+                        }
+
+                    }else {
+                        if (doc.getDocType() == null || StringUtils.isEmpty(doc.getDocType().trim())){
+                            rootResponse.setSysErrorMessage("DocType not valid either NULL or Empty");
+                            rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_DocData_ERROR_CODE);
+                            return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                        }else if (doc.getDoc() == null || StringUtils.isEmpty(doc.getDoc().trim())){
+                            rootResponse.setSysErrorMessage("Document not valid either NULL or Empty");
+                            rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_DocData_ERROR_CODE);
+                            return new ResponseEntity<>(rootResponse,HttpStatus.OK);
+                        }
                     }
                 }
-                rootResponse.setSysErrorMessage("You document is saved.");
+                response = saveDocForEmudra(docTypeDataList, leadId, custmerHash);
+                logger.info("Saved docuement with Status {}", response.getRetStatus());
+
+            }else{
+                rootResponse.setSysErrorMessage("DocTypeData is not available");
+                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_DocData_ERROR_CODE);
+                return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
             }
+            rootResponse.setSysErrorMessage("");
+            rootResponse.setOpportunityId((offerModule.getPlOpportunityId()));
+            rootResponse.setRetStatus(ProjectConstants.SUCCESS);
 
-            sfdcTdlDocResponse= sfdcTdlDocDAO.getSfdcTdlDocByLeadId(Integer.valueOf(leadId));
+            if (rootResponse.getRetStatus().equalsIgnoreCase(ProjectConstants.SUCCESS)){
+                String finalLeadId = leadId;
+                logger.info("Calling Async call for leadId {}",leadId);
 
-            /*check all 4 document is available then hit external service for emudra*/
-            List<UploadDoc> uploadDoc=uploadDocDAO.getUploadDocResByPlleadIdAndDocType(leadId, ProjectConstants.CUSTOMER_KFS_GENERATION_DOC_TYPE);
+//                CompletableFuture.runAsync(() ->
+                        dgoBackEndProcess(finalLeadId);
+                logger.info("Async call ended for leadId {}",leadId);
 
-//            logger.info(Arrays.toString(uploadDoc.toArray()));
-            if (uploadDoc.size() >0)
-                base64KfsDoc =uploadDoc.get(0).getBase64FormattedData();
-            logger.info("UploadDoc Size is {}", uploadDoc.size());
-
-            if(!uploadDoc.isEmpty()  && base64KfsDoc != null){
-                kfsAvailable = true;
-                logger.info("kfsAvailable "+kfsAvailable);
-                rootResponse.setSysErrorMessage("You document is saved with KFS data.");
-                makeEsignPDF(Integer.valueOf(leadId),base64KfsDoc);
-            }
-
-
-            if(sfdcTdlDocResponse.getSfdcDoc() != null && !sfdcTdlDocResponse.getSfdcDoc().isEmpty()
-                    && sfdcTdlDocResponse.getTdlDocTnc() != null && !sfdcTdlDocResponse.getTdlDocTnc().isEmpty()
-                    && sfdcTdlDocResponse.getTdlDocLoanAgr() != null && !sfdcTdlDocResponse.getTdlDocLoanAgr().isEmpty() &&
-                    kfsAvailable) {
-                if(sfdcTdlDocResponse.getEmudraStatus() == null || !sfdcTdlDocResponse.getEmudraStatus().equals(ProjectConstants.SUCCESS)) {
-
-                    logger.info("calling creatingEmudraRequest for esigned doc pushing for leadId {}", leadId);
-                    emudraRequest = creatingEmudraRequest(leadId);
-
-                    if (sfdcTdlDocResponse.getEmudraStatus() !=null && emudraRequest.getFile_content_string() !=null) {
-                        logger.info("calling EmudraService ...");
-                        emudraExternalResponse = eMudraService(leadId, emudraRequest);
-
-                    }
-
-                    if (emudraExternalResponse.getSigned_file_content() != null) {
-                        logger.info("Pusing Document to DMS and Emails");
-                        pushEmudraToDMSAndEmail(leadId, emudraExternalResponse.getSigned_file_content());
-                    }
-
-                }else {
-                    logger.info("Emudra Esigned document is already available.");
-                    rootResponse.setSysErrorMessage("Esigned document is already available");
-                }
-                rootResponse.setRetStatus(ProjectConstants.SUCCESS);
-                rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_SYS_SUCCESS_CODE);
-            }else {
-                logger.info("All document are not available now.");
-                rootResponse.setSysErrorMessage("Necessary document are not available");
-                rootResponse.setRetStatus(ProjectConstants.FAILURE);
-                rootResponse.setSysErrorCode(ProjectConstants.SYS_ERROR_CODE);
             }
 
         } catch (Exception e) {
@@ -180,68 +352,114 @@ public class EmudraServiceImpl  {
         return  new ResponseEntity<>(rootResponse,HttpStatus.OK);
     }
 
-//    @Override
-    public RootResponse saveDocForEmudra(DocTypeData emudraDocRequest, String leadId, String customerHash){
+
+    private void dgoBackEndProcess(String plLeadId){
+        String leadId;
+        String base64KfsDoc =null;
+        boolean kfsAvailable = false;
+        SfdcTdlDocResponse sfdcTdlDocResponse =new SfdcTdlDocResponse();
+        EmudraRequest emudraRequest= new EmudraRequest();
+        EmudraExternalResponse emudraExternalResponse = new EmudraExternalResponse();
+
+        try {
+            /*check all 4 document is available then hit external service for emudra*/
+            leadId=plLeadId;
+            List<UploadDoc> uploadDoc=uploadDocDAO.getUploadDocResByPlleadIdAndDocType(leadId, ProjectConstants.CUSTOMER_KFS_GENERATION_DOC_TYPE);
+            sfdcTdlDocResponse= sfdcTdlDocDAO.getSfdcTdlDocByLeadId(Integer.valueOf(leadId));
+            if (uploadDoc.size() >0)
+                base64KfsDoc =uploadDoc.get(0).getBase64FormattedData();
+            logger.info("UploadDoc Size is {}", uploadDoc.size());
+
+
+            if(!uploadDoc.isEmpty()  && base64KfsDoc != null){
+                kfsAvailable = true;
+                logger.info("kfsAvailable {} for LeadId {}",kfsAvailable , leadId);
+            }
+
+            if(!ObjectUtils.isEmpty(sfdcTdlDocResponse) && sfdcTdlDocResponse.getSfdcDoc() != null && !sfdcTdlDocResponse.getSfdcDoc().isEmpty()
+                    && sfdcTdlDocResponse.getTdlDocTnc() != null && !sfdcTdlDocResponse.getTdlDocTnc().isEmpty()
+                    && sfdcTdlDocResponse.getTdlDocLoanAgr() != null && !sfdcTdlDocResponse.getTdlDocLoanAgr().isEmpty() &&
+                    kfsAvailable) {
+                if(sfdcTdlDocResponse.getEmudraStatus() == null || !sfdcTdlDocResponse.getEmudraStatus().equals(ProjectConstants.SUCCESS)) {
+
+                    makeEsignPDF(Integer.valueOf(leadId),base64KfsDoc);
+                    logger.info("calling creatingEmudraRequest for esigned doc pushing for leadId {}", leadId);
+                    emudraRequest = creatingEmudraRequest(leadId);
+
+                    if (emudraRequest.getFile_content_string() !=null) {
+                        logger.info("calling EmudraService ...");
+                        emudraExternalResponse = eMudraService(leadId, emudraRequest);
+                    }
+
+                    if (emudraExternalResponse.getSigned_file_content() != null) {
+                        logger.info("Pusing Document to DMS and Emails");
+                        pushEmudraToDMSAndEmail(leadId, emudraExternalResponse.getSigned_file_content());
+                    }
+
+                }else {
+                    logger.info("Emudra Esigned document is already available.");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    @Override
+    public RootResponse saveDocForEmudra(List<DocTypeData> emudraDocRequest, String leadId, String customerHash){
 
         SfdcTdlDocResponse sfdcTdlDocResponse =new SfdcTdlDocResponse();
         RootResponse rootResponse = new RootResponse();
         String docType = null;
-//        basePath=appProps.geteMudraFilePath();
-
+        basePath="C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/doc/";//appProps.geteMudraFilePath();
+//        SfdcTdlDocResponse sfdcTdlDocResponse1 = new SfdcTdlDocResponse();
 
         // based on the tpye we can save in Db.
         try {
             logger.info("Inside saveDocForEmudra");
             logger.info("Doc path "+basePath);
-            if(emudraDocRequest != null && emudraDocRequest.getDoc() != null && emudraDocRequest.getDocType() != null ){
+            for (DocTypeData doc : emudraDocRequest) {
+                FileResponse fileResponse = convertBase64StringToFile(doc.getDoc(),"esignDmsRequest" , leadId);
+                if (doc != null && doc.getDoc() != null && doc.getDocType() != null) {
 
-                docType = emudraDocRequest.getDocType().toLowerCase();
-                logger.info("customer docType is {}",docType);
+                    docType = doc.getDocType().toLowerCase();
+                    logger.info("customer docType is {}", docType);
 
-                if (docType.equalsIgnoreCase("sl")){
-                    sfdcTdlDocResponse.setSfdcDoc(emudraDocRequest.getDoc());
+                    if (docType.equalsIgnoreCase("sl")) {
+                        sfdcTdlDocResponse.setSfdcDoc(doc.getDoc());
 
-                }else {
-                    switch (docType){
+                    } else {
+                        switch (docType) {
 
-                        case "tc":
-                            sfdcTdlDocResponse.setTdlDocTnc(emudraDocRequest.getDoc());
-                            break;
-                        case "la":
-                            sfdcTdlDocResponse.setTdlDocLoanAgr(emudraDocRequest.getDoc());
-                            break;
+                            case "tc":
+                                sfdcTdlDocResponse.setTdlDocTnc(doc.getDoc());
+                                break;
+                            case "la":
+                                sfdcTdlDocResponse.setTdlDocLoanAgr(doc.getDoc());
+                                break;
+                        }
                     }
-                }
-                //sl Sanction Letter , tc-Terms&Conditions , la- Loan
+                    //sl Sanction Letter , tc-Terms&Conditions , la- Loan
 
-                if (sfdcTdlDocResponse != null) {
-                    sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
+                } else {
+                    logger.info("some necessary field is missing..");
+                    rootResponse.setRetStatus(ProjectConstants.FAILURE);
+                    rootResponse.setSysErrorCode(ProjectConstants.EMUDRA_DocData_ERROR_CODE);
+                    rootResponse.setSysErrorMessage("Some necessary field is missing like leadId, docType");
+                    return rootResponse;
                 }
-                sfdcTdlDocResponse.setCustomerHash(customerHash);
-                SfdcTdlDocResponse sfdcTdlDocResponse1= sfdcTdlDocDAO.getSfdcTdlDocByLeadId(Integer.valueOf(leadId));
-                logger.info("sfdcTdlDoc data {}",sfdcTdlDocResponse1.toString());
-                if(sfdcTdlDocResponse1.getCreatedDate() == null){
-                    sfdcTdlDocResponse.setCreatedDate(new Date());
-                }else {
-                    sfdcTdlDocResponse.setUpdatedDate(new Date());
-                }
-
-                rootResponse.setRetStatus(ProjectConstants.SUCCESS);
-
-            }else{
-                logger.info("some necessary field is missing..");
-                rootResponse.setRetStatus(ProjectConstants.FAILURE);
-                rootResponse.setSysErrorCode(ProjectConstants.SYS_ERROR_CODE);
-                rootResponse.setSysErrorMessage("Some necessary field is missing like leadId, docType.");
-                return rootResponse;
             }
+            sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
+            sfdcTdlDocResponse.setCustomerHash(customerHash);
+            sfdcTdlDocResponse.setEmudraStatus(ProjectConstants.FAILURE);
+
+            rootResponse.setRetStatus(ProjectConstants.SUCCESS);
 
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
 
-            if (sfdcTdlDocResponse != null && sfdcTdlDocResponse.getLeadId() != null) {
-                sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse);
+            if (sfdcTdlDocResponse.getLeadId() != null) {
+                saveOrUpdateSfdcData(sfdcTdlDocResponse);
                 logger.info("Emudra Document is updated successfully Document {} for customer :{}",docType ,sfdcTdlDocResponse.getLeadId());
 
             }
@@ -254,55 +472,68 @@ public class EmudraServiceImpl  {
         UploadDoc uploadDoc=new UploadDoc();
         SmsMailPayload smsMailPayload=new SmsMailPayload();
         CDIOfferModule offerModule=new CDIOfferModule();
-//        basePath=appProps.geteMudraFilePath();
+        basePath="C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/doc/";
 
         try {
             logger.info("pushEmudraToDMS is started.");
-            logger.info("fileBasePath "+basePath);
+            logger.info("fileBasePath {}",basePath);
             offerModule = cdiOfferModuleDataDAO.getOfferDataByPlLeadId(Long.valueOf(plLeadId));
-
+            uploadDoc.setCreatedDate(new Date());
             docUploadPayload.setWebtopNo(offerModule.getPlWebTopId() != null?offerModule.getPlWebTopId():null);
-            docUploadPayload.setApplicantType("esigned"); // TODO: 3/10/2023  verify what i've to put.
+//            docUploadPayload.set(String.valueOf(offerModule.getPlLeadId()));
+            docUploadPayload.setApplicantType("1");
             docUploadPayload.setMobileNo(String.valueOf(offerModule.getMobileNo()  != null ? offerModule.getMobileNo():null));
-            docUploadPayload.setDocUploadName("esignedDoc");
-            /*converting the base64 to pdf.
-             *   base64 to .text file after that .text file to pdf*/
+            docUploadPayload.setDocUploadName(plLeadId+"_EsignedDoc.pdf");
 
-//            if (esignedDocBase64Date !=null) {
-//                File tempFile= textToFile(esignedDocBase64Date,basePath);
-//                File pdfFile = decode(tempFile.getAbsolutePath(), basePath+plLeadId+"_EsignedDoc.pdf");
-//            }
             docUploadPayload.setBase64(esignedDocBase64Date);
             docUploadPayload.setDocUploadType("EsignedDoc");
 
-            // TODO: 3/10/2023  have to save file in uploadDoc. col name basd64formateddata for asaving base64 data of docment.
-            uploadDoc.setLeadId(String.valueOf(offerModule.getPlLeadId() != null ? offerModule.getPlLeadId():null));
-            uploadDoc.setDocUploadName("EsignedDoc");
-            uploadDoc.setBase64FormattedData(esignedDocBase64Date);
-//			uploadDoc.setApplicantType();
+            uploadDoc.setPlleadId(String.valueOf(offerModule.getPlLeadId() != null ? offerModule.getPlLeadId():null));
+            uploadDoc.setDocUploadName(plLeadId+"_EsignedDoc.pdf");
+//            uploadDoc.setBase64FormattedData(esignedDocBase64Date);
+            uploadDoc.setDocUploadType("Dms_pushed_Esigned_Doc");
+            uploadDoc.setApplicantType("1");
 //			uploadDoc.setApplicantNature();
-            uploadDoc.setCreatedDate(new Date());
+            uploadDoc.setUpdatedDate(new Date());
+//            StringBuilder fileName = null;
+//            fileName = new StringBuilder("/home/99037250/web/TCL/uploaded_doc/");
+            FileResponse fileResponse = convertBase64StringToFile(esignedDocBase64Date,"esignDmsRequest" , plLeadId);
+            uploadDoc.setDocUploadBase64(fileResponse.toString());
             uploadDoc.setWebtopNo(offerModule.getPlWebTopId() != null ? offerModule.getPlWebTopId() : null);
 
-            uploadDocDAO.saveOrUpdate(uploadDoc);
+//            if (ObjectUtils.isEmpty(docUploadResponse)){
+//                uploadDoc.setDocUploadRetStatus(docUploadResponse.getRetStatus());
+//                uploadDoc.setDocUploadLogtxnid(docUploadResponse.getLogTxnID());
+//            }
+            uploadDoc= uploadDocDAO.saveOrUpdate(uploadDoc);
+            docUploadPayload.setDocId(uploadDoc.getDocId());
+            DocUploadResponse docUploadResponse = new DocUploadResponse();//docUploadService.uploadDocV2(docUploadPayload); //  for pushing DMS.
+            if (docUploadResponse != null){
+                uploadDoc.setDocUploadRetStatus(ProjectConstants.SUCCESS);
+            }else {
+                uploadDoc.setDocUploadRetStatus(ProjectConstants.API_FAIL);
+            }
 
-//            docUploadService.uploadDocV2(docUploadPayload); //  for pushing DMS.
+
             logger.info("DMS pushed for Esigned document of customer leadId"+offerModule.getPlLeadId());
 
-            /*********************************************************************************************************************************/
-            // TODO: 3/9/2023  send email to customer.
-            // Sending mail to customer
-//            Thread thread = new Thread(() -> {
-            smsMailPayload.setSubject("Digital Signed Document of-" + offerModule.getCustomerName() + "-"
-                    + offerModule.getPlOpportunityId() + " ");
-            smsMailPayload.setMessage("<html><body><div><p>Dear User ,</p><p>Please find digital Signature's Statement for your reference.</p><br><p>Regards,</p><p style="
+            smsMailPayload.setSubject("Important! Tata Capital Loan Application -" + offerModule.getCustomerName() + " ");
+            smsMailPayload.setMessage("<html><body><div><p>Dear "+offerModule.getCustomerName()+" ,</p><p>Greetings from Tata Capital! We would like to thank you for choosing us as your financial partner.</p><br> <p>We are pleased to inform you that your Personal Loan application is submitted successfully and is currently under process. You will receive a confirmation on the Application status shortly.</p>" +
+                    "<br><p>You may refer to  important loan related  details from the documents attached to this e-mail. </p>" +
+                    "<br><p>For any clarification and more details, you may write to us at customercare@tatacapital.com  or Call us on 1860 267 6060 from 09:00am to 08:00pm, Monday to Saturday (except public holidays).</p>" +
+                    "<br> <br> <p>To track your application status, click here: https://bit.ly/3o53lmj </p>"+
+                    " <br> <br> <p> Looking forward to more opportunities to be of service to you.</p>"+
+                    "<br><p>Thanks & Regards,</p><p style="
                     + "font-weight: bold;" + ">Tata Capital Financial Services Ltd</p></div></body>");
             if (offerModule.getEmailAddress() != null)
                 smsMailPayload.setMailTo(offerModule.getEmailAddress());
             else
-                logger.info("EmilsId is not available in payload.");
+                logger.info("Emails Id is not available in payload for leadId {} email is {}",plLeadId,offerModule.getEmailAddress());
             smsMailPayload.setLeadId(String.valueOf(offerModule.getPlLeadId() != null ? offerModule.getPlLeadId():null));
-            String  filepath=basePath+plLeadId+"_EsignedDoc.pdf";
+
+            StringBuilder tmp = new StringBuilder("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/doc/"+plLeadId+"/");
+            tmp.append(plLeadId).append(File.separator);
+            String  filepath=tmp.toString() +plLeadId+"_EsignedDoc.pdf";
             File file = new File(filepath);
             if (file != null) {
                 smsMailPayload.setFile(file);
@@ -315,17 +546,21 @@ public class EmudraServiceImpl  {
 
 
             logger.info("Sending mail to customer : Stated");
+//            Thread.currentThread().setContextClassLoader( getClass().getClassLoader() );
 //            emailServices.sendMail(smsMailPayload);
 
             logger.info("Sending mail to customer : Ended");
 
+            if (file.exists()){
+                deleteExtraFileFromServer(plLeadId);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-//    @Override
+    @Override
     public EmudraRequest creatingEmudraRequest(String leadId){
         //lead_id	customer_hash	sfdc_doc	tdl_tnc	tdl_loneAg
         EmudraRequest emudraRequest = new EmudraRequest();
@@ -336,7 +571,7 @@ public class EmudraServiceImpl  {
         try {
             // TODO: 3/13/2023  have to review
 //            combinedDoc= makeEsignPDF(Integer.valueOf(leadId),base64KfsDoc);
-            SfdcTdlDocResponse sfdcTdlDocResponse = sfdcTdlDocDAO.getSfdcTdlDocByLeadId(Integer.valueOf(leadId));
+            SfdcTdlDocResponse sfdcTdlDocResponse = sfdcTdlDocDAO.getSfdcTdlDocByLeadId(Integer.valueOf((leadId)));
 
             emudraRequest.setName("Prod DLG");
             emudraRequest.setReason("Testing");
@@ -364,22 +599,24 @@ public class EmudraServiceImpl  {
         return null;
     }
 
-//    @Override
+    @Override
     public EmudraExternalResponse eMudraService(String leadId, EmudraRequest emudraRequest){
 
-        EmudraRequest emudraResponse =new EmudraRequest();
+//        EmudraRequest emudraResponse =new EmudraRequest();
         SfdcTdlDocResponse sfdcTdlDocResponse = new SfdcTdlDocResponse();
         RestTemplate restTemplate = new RestTemplate();
         EmudraExternalResponse  emudraExternalResponse =new EmudraExternalResponse();
-//        basePath=appProps.geteMudraFilePath();
+        basePath="C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/doc/";
         String url = "http://digio.tatacapital.com:8080/doc_signer/signdoc";
-        AuditDetailsPayload auditDetails  = new AuditDetailsPayload();
+//        AuditDetails auditDetails  = new AuditDetails();
+//        UploadDoc uploadDoc= new UploadDoc();
+        AuditDetailsPayload auditDetailsPayload = new AuditDetailsPayload();
 
         try {
-            auditDetails.setApiName("Digio EmudraService");
-            auditDetails.setLeadId(leadId);
-            auditDetails.setRequestUrl(url);
-
+//            auditDetails.setApiName("digio EmudraService");
+//            auditDetails.setLeadId(leadId);
+//            auditDetails.setRequestUrl(url);
+            auditDetailsPayload.setRequestTime(new Date());
             logger.info("Emudra call for leadId {}",leadId);
 
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
@@ -387,37 +624,52 @@ public class EmudraServiceImpl  {
 
             HttpEntity<?> httpEntity = new HttpEntity<>(emudraRequest, headers);
 
-            auditDetails.setRequestTime(new Date());
+//            auditDetails.setRequestTime(new Date());
 
             emudraExternalResponse = restTemplate.postForObject(url, httpEntity, EmudraExternalResponse.class);
-            auditDetails.setResponseTime(new Date());
+//            auditDetails.setResponseTime(new Date());
 
             if (emudraExternalResponse.getSigned_file_content() !=null) {
-                auditDetails.setStatus(ProjectConstants.SUCCESS);
+//                auditDetails.setStatus(ProjectConstants.SUCCESS);
                 sfdcTdlDocResponse.setEmudraStatus(ProjectConstants.SUCCESS);
             }
 
-            auditDetails.setRequestFileName("Combind Pdf Document");
-            auditDetails.setResponseFileName("Signed pdf Document");
+//            auditDetails.setRequestFileName(basePath+leadId+ "_mergedFile.pdf");
             if (emudraExternalResponse.getSigned_file_content() !=null) {
-                File tempFile= textToFile(emudraExternalResponse.getSigned_file_content(), basePath+leadId+"_EsignedDoc.txt");
-                File file = decode(tempFile.getAbsolutePath(), basePath+leadId+ "_EsignedDoc.pdf");
+
+                StringBuilder tmp = new StringBuilder("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/doc/"+leadId+"/");
+                tmp.append(leadId);
+                File tmpDir = new File(tmp.toString());
+                if (!tmpDir.exists()) {
+                    logger.info("Directory Created: " + tmpDir.mkdirs());
+                }
+                base64ToPdf(emudraExternalResponse.getSigned_file_content(), tmpDir.getAbsolutePath()+leadId+ "_EsignedDoc.pdf");
             }
+//            auditDetails.setResponseFileName(basePath+leadId+ "_EsignedDoc.pdf");
+
+            auditDetailsPayload.setApiName("digioEsignDoc");
+            auditDetailsPayload.setLeadId(leadId);
+            auditDetailsPayload.setPayload(objMapper.writeValueAsString(emudraRequest)  );
+            auditDetailsPayload.setRequestUrl(url);
+            auditDetailsPayload.setResponse(objMapper.writeValueAsString(emudraExternalResponse));
+            auditDetailsPayload.setConversationId(String.valueOf(new Date().getTime()));
+            auditDetailsPayload.setResponseTime(new Date());
+            auditDetailsPayload.setStatus(ProjectConstants.SUCCESS);
 
         } catch (Exception e) {
             e.printStackTrace();
+            auditDetailsPayload.setResponseTime(new Date());
+            auditDetailsPayload.setStatus(ProjectConstants.API_FAIL);
         } finally {
-            if (auditDetails.getLeadId() !=null && auditDetails.getRequestUrl() !=null ){
-                auditDetailsUtility.saveAuditDetails(auditDetails);
-            }
+            auditDetailsUtility.saveAuditDetails(auditDetailsPayload);
 
             if (emudraExternalResponse.getSigned_file_content() != null) {
-                sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
+                sfdcTdlDocResponse.setLeadId(Integer.valueOf((leadId)));
                 sfdcTdlDocResponse.setEsignDoc(emudraExternalResponse.getSigned_file_content());
             }
 
             if (sfdcTdlDocResponse.getLeadId() !=null) {
-                sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse);
+                saveOrUpdateSfdcData(sfdcTdlDocResponse);
                 logger.info("EmudraDoc is updated successfully for customer :"+sfdcTdlDocResponse.getLeadId());
             }
 
@@ -428,7 +680,7 @@ public class EmudraServiceImpl  {
     }
 
     public String makeEsignPDF(Integer leadId,String base64KfsDoc){
-//        basePath=appProps.geteMudraFilePath();
+        basePath="C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/doc/";//appProps.geteMudraFilePath();
         File file = null,file1 = null,file2 = null,file3=null, file0=null;
         SfdcTdlDocResponse sfdcTdlDocResponse= new SfdcTdlDocResponse();
         String path=basePath;
@@ -436,28 +688,36 @@ public class EmudraServiceImpl  {
         String destenation;
 
         try {
-            sfdcTdlDocResponse = sfdcTdlDocDAO.getSfdcTdlDocByLeadId(leadId);
+            StringBuilder tmp = new StringBuilder(basePath);
+            tmp.append(leadId).append(File.separator);
+            File path1= new File(tmp.toString());
+            if (!path1.exists()) {
+                logger.info("Directory Created in makeEsignPDF: {}",path1.mkdirs());
+            }
+            path=path1.getAbsolutePath();
+            LoggerClass.appLayerLogger.info("");
+            sfdcTdlDocResponse = sfdcTdlDocDAO.getSfdcTdlDocByLeadId(((leadId)));
 
 
             file0 = new File(basePath + "coverPage.pdf");
 
             if (sfdcTdlDocResponse.getSfdcDoc() !=null) {
-                tempFile= textToFile(sfdcTdlDocResponse.getSfdcDoc(),path+leadId+ "_sfdcbase64.txt");
-                file = decode(tempFile.getAbsolutePath(), path+leadId+ "_sfdcDoc.pdf");
-                logger.info("file path "+tempFile.getAbsolutePath());
+                base64ToPdf(sfdcTdlDocResponse.getSfdcDoc(),path+leadId+ "_sfdcDoc.pdf");
+                file= new File(path + leadId + "_sfdcDoc.pdf");
             }
             if (sfdcTdlDocResponse.getTdlDocLoanAgr() !=null) {
-                tempFile= textToFile(sfdcTdlDocResponse.getTdlDocLoanAgr(),path+leadId+"_tdlLAgrbase64.txt");
-                file1 = decode(tempFile.getAbsolutePath(), path+leadId+"_TdlDocLoanAgr.pdf");
+                base64ToPdf(sfdcTdlDocResponse.getTdlDocLoanAgr(),path+leadId+"_TdlDocLoanAgr.pdf" );
+                file1= new File(path+leadId+"_TdlDocLoanAgr.pdf");
             }
+
             if (sfdcTdlDocResponse.getTdlDocTnc() !=null) {
-                tempFile= textToFile(sfdcTdlDocResponse.getTdlDocTnc(),path+leadId+"_tdlTncBase64.txt");
-                file2 = decode(tempFile.getAbsolutePath(), path+leadId+"_TdlDocTnc.pdf");
+                base64ToPdf(sfdcTdlDocResponse.getTdlDocTnc(),path+leadId+"_TdlDocTnc.pdf");
+                file2= new File(path+leadId+"_TdlDocTnc.pdf");
             }
 
             if (base64KfsDoc !=null) {
-                tempFile= textToFile(base64KfsDoc,path+leadId+"_KfsBase64.txt");
-                file3 = decode(tempFile.getAbsolutePath(), path+leadId+"_KfsDoc.pdf");
+                base64ToPdf(base64KfsDoc,  path+leadId+"_KfsDoc.pdf");
+                file3 = new File(path+leadId+"_KfsDoc.pdf");
             }
 
             //file array creating to send for merging.
@@ -474,14 +734,30 @@ public class EmudraServiceImpl  {
         return "Success";
     }
 
+    public static void base64ToPdf(String b64,String filePath) {
+        File file = new File(filePath);
+
+        try (FileOutputStream fos = new FileOutputStream(file); ) {
+            byte[] decoder = java.util.Base64.getDecoder().decode(b64);
+
+            fos.write(decoder);
+            System.out.println("PDF File Saved");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void deleteExtraFileFromServer(String leadId){
-//        String basePath= appProps.geteMudraFilePath();
+        String basePath= "C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/doc/";
         try {
-            logger.info("Detleting the file For leadId {}",leadId);
-//            StringBuilder completeFileName = new StringBuilder(file1.getPath());
-//            completeFileName.append("/").append("PL_CKYCDATA_").append(appId).append(".txt");
-//            logger.info("Complete File Name : " + completeFileName);
-//            File newFile = new File(completeFileName.toString());
+            StringBuilder tmp = new StringBuilder(basePath);
+            tmp.append(leadId).append(File.separator);
+            File path1= new File(tmp.toString());
+//            if (!path1.exists()) {
+//                logger.info("Directory Created in makeEsignPDF: {}",path1.mkdir());
+//            }
+            basePath=path1.getAbsolutePath();
+            logger.info("Deleting the file For leadId {}",leadId);
 
             File sfdcTextDoc = new File(basePath+leadId+ "_sfdcbase64.txt");
             if (sfdcTextDoc.exists()) sfdcTextDoc.delete();
@@ -507,13 +783,11 @@ public class EmudraServiceImpl  {
             File kfsPdfDoc = new File(basePath+leadId+ "_KfsDoc.pdf");
             if (kfsPdfDoc.exists()) kfsPdfDoc.delete();
 
+            File esignedDocTxt = new File(basePath+leadId+ "_EsignedDoc.txt");
+            if (esignedDocTxt.exists()) esignedDocTxt.delete();
 
-          /*  if (newFile.exists()) {
-                newFile.delete();
-                newFile.createNewFile();
-            } else {
-                newFile.createNewFile();
-            }        } catch (Exception e) {*/
+            File meargedDocTxt = new File(basePath+leadId+ "_mergedFile.txt");
+            if (meargedDocTxt.exists()) meargedDocTxt.delete();
 
         } finally {
             logger.info("File deleted Successfully.");
@@ -537,12 +811,11 @@ public class EmudraServiceImpl  {
         return null;
     }
 
-//    @Override
+    @Override
     public void jobsForEmudraAndDmsEmails(List<String> request){
         EmudraRequest emudraRequest =new EmudraRequest();
         EmudraExternalResponse emudraExternalResponse = new EmudraExternalResponse();
         SfdcTdlDocResponse sfdcTdlDocResponse = new SfdcTdlDocResponse();
-        RootResponse rootResponse= new RootResponse();
         String base64KfsDoc=null;
         try {
             for(String leadId: request){
@@ -557,7 +830,7 @@ public class EmudraServiceImpl  {
                     logger.info("UploadDoc Size is {} in Job", uploadDoc.size());
                     makeEsignPDF(Integer.valueOf(leadId),base64KfsDoc);
                 }else {
-                    logger.info("Esigned merged doc is available.");
+                    logger.info("Esigned merged doc is available for leadId {}",leadId);
                 }
 
                 if (!sfdcTdlDocResponse.getEmudraStatus().equals(ProjectConstants.SUCCESS)) {
@@ -565,10 +838,10 @@ public class EmudraServiceImpl  {
                     emudraExternalResponse = eMudraService(leadId, emudraRequest);
 
                 }else{
-                    logger.info("Esign Status Is available.");
+                    logger.info("Esign Status Is available for leadId {}",leadId);
                 }
 
-                if (emudraExternalResponse.getSigned_file_content() != null) {
+                if (emudraExternalResponse.getSigned_file_content() != null && !sfdcTdlDocResponse.getEmudraStatus().equals(ProjectConstants.SUCCESS)) {
                     logger.info("Pusing Document to DMS and Emails");
                     pushEmudraToDMSAndEmail(leadId, emudraExternalResponse.getSigned_file_content());
                 }
@@ -580,14 +853,65 @@ public class EmudraServiceImpl  {
         }
     }
 
+    public void saveOrUpdateSfdcData(SfdcTdlDocResponse sfdcTdlDocResponse){
+
+        try {
+            String leadId= null;
+            SfdcTdlDocResponse sfdcTdlDocResponseSavedData= new SfdcTdlDocResponse();
+
+            leadId = String.valueOf(sfdcTdlDocResponse.getLeadId());
+            logger.info("leadId {}",leadId);
+            sfdcTdlDocResponseSavedData = sfdcTdlDocDAO.getSfdcTdlDocByLeadId(Integer.valueOf(leadId));
+
+            if (ObjectUtils.isEmpty(sfdcTdlDocResponseSavedData) && sfdcTdlDocResponseSavedData == null){
+                logger.info("No any record found in Table for leadId :"+leadId);
+                sfdcTdlDocResponseSavedData = new SfdcTdlDocResponse();
+                sfdcTdlDocResponseSavedData.setLeadId(Integer.valueOf(leadId));
+                sfdcTdlDocResponseSavedData.setCreatedDate(new Date());
+                sfdcTdlDocResponseSavedData.setUpdatedDate(new Date());
+                sfdcTdlDocResponseSavedData.setEmudraStatus(ProjectConstants.FAILURE);
+            }
+            if (sfdcTdlDocResponse.getEsignDoc() !=null)
+                sfdcTdlDocResponseSavedData.setEsignDoc(sfdcTdlDocResponse.getEsignDoc());
+            if (sfdcTdlDocResponse.getCustomerHash() !=null)
+                sfdcTdlDocResponseSavedData.setCustomerHash(sfdcTdlDocResponse.getCustomerHash());
+            if (sfdcTdlDocResponse.getCreatedDate() != null){
+                sfdcTdlDocResponseSavedData.setCreatedDate(sfdcTdlDocResponse.getCreatedDate());
+            }
+            if (sfdcTdlDocResponse.getUpdatedDate() !=null)
+                sfdcTdlDocResponseSavedData.setUpdatedDate(sfdcTdlDocResponse.getUpdatedDate());
+            else
+                sfdcTdlDocResponseSavedData.setUpdatedDate(new Date());
+            if (sfdcTdlDocResponse.getTdlDocLoanAgr() !=null)
+                sfdcTdlDocResponseSavedData.setTdlDocLoanAgr(sfdcTdlDocResponse.getTdlDocLoanAgr());
+            if (sfdcTdlDocResponse.getTdlDocTnc() !=null)
+                sfdcTdlDocResponseSavedData.setTdlDocTnc(sfdcTdlDocResponse.getTdlDocTnc());
+            if (sfdcTdlDocResponse.getSfdcDoc() !=null)
+                sfdcTdlDocResponseSavedData.setSfdcDoc(sfdcTdlDocResponse.getSfdcDoc());
+            if (!sfdcTdlDocResponseSavedData.getEmudraStatus().equalsIgnoreCase(ProjectConstants.SUCCESS))
+                sfdcTdlDocResponseSavedData.setEmudraStatus(sfdcTdlDocResponse.getEmudraStatus() != null ? sfdcTdlDocResponse.getEmudraStatus():" ");
+
+            sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponseSavedData);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String combineTwoPdf(File[] filePaths, String destinationFileName, String leadId) throws IOException {// this for acceptng the file array.
 
         String  esignBase64Data= null;
         SfdcTdlDocResponse sfdcTdlDocResponse = new SfdcTdlDocResponse();
         String path=null;
         try {
+            StringBuilder tmp = new StringBuilder(destinationFileName);
+            tmp.append(leadId).append(File.separator);
+            File tmpDir = new File(tmp.toString());
+            if (!tmpDir.exists()) {
+                logger.info("Directory Created combineTwoPdf: {}",tmpDir.mkdirs());
+            }
             PDFMergerUtility obj = new PDFMergerUtility();
-            obj.setDestinationFileName(destinationFileName+leadId+"_mergedFile.pdf");
+            obj.setDestinationFileName(tmpDir.getAbsolutePath()+leadId+"_mergedFile.pdf");
 
             // Add all source files, to be merged
             for (File files : filePaths){
@@ -596,24 +920,26 @@ public class EmudraServiceImpl  {
 
             obj.mergeDocuments();
 
+//            StringBuilder tmp = new StringBuilder("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/doc/"+leadId+"/");
+//            tmp.append(leadId);
+//            File tmpDir = new File(tmp.toString());
+//            if (!tmpDir.exists()) {
+//                logger.info("Directory Created: " + tmpDir.mkdir());
+//            }
 
-            encode(destinationFileName+leadId+"_mergedFile.pdf", destinationFileName+leadId+"_mergedFile.txt", true);
+            encode(tmpDir.getAbsolutePath() +leadId+"_mergedFile.pdf", tmpDir.getAbsolutePath() +leadId+"_mergedFile.txt", true);
             System.out.println("PDF Documents merged to a single file");
-            sfdcTdlDocResponse =sfdcTdlDocDAO.getSfdcTdlDocByLeadId(Integer.valueOf(leadId));
             path =destinationFileName+leadId+"_mergedFile.txt";
             esignBase64Data =copyDataFromFile(path) ;
 
-            if (sfdcTdlDocResponse.getEsignDoc() == null || esignBase64Data != null) {
+            sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
+            if (esignBase64Data != null) {
                 sfdcTdlDocResponse.setEsignDoc(esignBase64Data);
-                sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
-                sfdcTdlDocResponse.setUpdatedDate(new Date());
                 sfdcTdlDocResponse.setEmudraStatus(ProjectConstants.FAILURE);
             }
-            sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse);
+            saveOrUpdateSfdcData(sfdcTdlDocResponse);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (COSVisitorException e) {
+        } catch (IOException | COSVisitorException e) {
             e.printStackTrace();
         }
         return null;
@@ -687,5 +1013,118 @@ public class EmudraServiceImpl  {
 
     }
 
+    public FileResponse convertBase64StringToFile(String base64String, String fileName, String appId) {
+        FileResponse response = new FileResponse();
+        try {
+            String tempPath =prepareTempPath(appId);
+            String tempFileName = prepareFileName(appId, fileName);
+            File file1 = new File(tempPath + tempFileName);
+//            OutputStream outputStream = new FileOutputStream(file1);
+//            outputStream.write(java.util.Base64.getDecoder().decode(base64String.replaceAll("\\s", "")));
+//            outputStream.close();
 
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file1));
+            writer.write(base64String);
+            writer.close();
+
+            prepareFileResponse(response, tempPath, tempFileName);
+        } catch (FileNotFoundException e) {
+            logger.error("While serching the file path it throws error(FileNotFound): ", e);
+            response.setStatus(ProjectConstants.API_FAIL);
+            response.setMessage(e.getMessage());
+        } catch (IOException ex) {
+            logger.error("While closing the streams it throws error: ", ex);
+            response.setStatus(ProjectConstants.API_FAIL);
+            response.setMessage(ex.getMessage());
+        } catch (Exception exe) {
+            logger.error("While preparing file paths to file it throws error: ", exe);
+            response.setStatus(ProjectConstants.API_FAIL);
+            response.setMessage(exe.getMessage());
+        }
+        return response;
+    }
+
+    private String prepareTempPath(String appId) throws Exception {
+        StringBuilder tmp = new StringBuilder("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/AuditDetailsUtility/");
+        tmp.append(appId);
+        File tmpDir = new File(tmp.toString());
+        if (!tmpDir.exists()) {
+            logger.info("Directory Created: " + tmpDir.mkdir());
+        }
+        return tmp.toString();
+    }
+
+    private String prepareFileName(String appId, String fileName) throws Exception {
+        return new StringBuilder(File.separator)
+                .append(appId)
+                .append("_")
+                .append(fileName).toString();
+    }
+
+    private void prepareFileResponse(FileResponse response, String tempFilePath, String fileName) {
+        try {
+            response.setFile(new FileInputStream(new File(tempFilePath + fileName)));
+            response.setAbsoluteFilePath(tempFilePath + fileName);
+            response.setFilePath(tempFilePath);
+            response.setFileName(fileName);
+            response.setStatus(ProjectConstants.SUCCESS);
+        } catch (Exception e) {
+            response.setStatus(ProjectConstants.API_FAIL);
+            response.setMessage(e.getMessage());
+        }
+    }
+
+//    public static void main(String[] args) {
+//        File pdf = new File("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/1_KfsDoc.pdf");
+//        File txt= new File("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/1_KfsDoc.txt");
+//        base64ToPdf(pdf.getAbsolutePath(),txt.getAbsolutePath());
+//        base64ToPdf("/1_KfsDoc.pdf","/1_KfsDoc1.txt");
+//        EmudraServiceImpl emudraService= new EmudraServiceImpl();
+//        emudraService.convertBase64StringToFile("ieieoeooeoe","convertedfile","1111");
+//    }
+    public static void pdfToBase64(File pdfFile, File txtFile) throws IOException {
+        // Read the contents of the PDF file into a byte array
+        byte[] pdfBytes = new byte[(int) pdfFile.length()];
+        FileInputStream pdfInputStream = new FileInputStream(pdfFile);
+        pdfInputStream.read(pdfBytes);
+        pdfInputStream.close();
+
+        // Convert the byte array to a Base64-encoded string
+        String base64String =java.util.Base64.getEncoder().encodeToString(pdfBytes);
+
+        // Write the Base64-encoded string to the text file
+        BufferedWriter writer = new BufferedWriter(new FileWriter(txtFile));
+        writer.write(base64String);
+        writer.close();
+    }
+
+    public ResponseEntity<SfdcTdlDocResponse> saveData(SfdcTdlDocResponse sfdcTdlDocResponse){
+        try {
+            return new ResponseEntity<>( sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse),HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void main(String[] args) throws IOException {
+        // Create a file
+        String fileName = "C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/example.txt";
+        File file = new File(fileName);
+        file.createNewFile();
+
+// Get the absolute path of the file
+        String filePath = file.getAbsolutePath();
+        LoggerClass.appLayerLogger.info("file path"+filePath);
+// Create a new directory
+        String newDirectoryName = "C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/pdfFIle/new_directory";
+        File newDirectory = new File(newDirectoryName);
+        newDirectory.mkdir();
+
+// Create a new file in the new directory
+        String newFilePath = newDirectoryName + File.separator + "new_example.txt";
+        File newFile = new File(newFilePath);
+        newFile.createNewFile();
+
+    }
 }

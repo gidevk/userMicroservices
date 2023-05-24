@@ -2,6 +2,7 @@ package com.expriment.Controller;
 
 import com.expriment.DAO.CDIOfferModuleDataDAO;
 import com.expriment.Testing.EmudraDocRequest;
+import com.expriment.Testing.SfdcTdlDocResponse;
 import com.expriment.entity.CDIOfferModule;
 import com.expriment.service.serviceImpl.EmudraServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,12 @@ public class CDIOfferModuleController {
     @PostMapping(value = "/emudra", produces = {MediaType.APPLICATION_ATOM_XML_VALUE}) // /Offer/emudra
     public ResponseEntity<?> emudraRequest(@RequestBody EmudraDocRequest emudraDocRequestList){
         return new ResponseEntity<>(emudraService.saveEmudraDocumentService(emudraDocRequestList), HttpStatus.OK);
+
+//        return null;
+    }
+    @PostMapping(value = "/saveSfdc", produces = {MediaType.APPLICATION_ATOM_XML_VALUE}) // /Offer/emudra
+    public ResponseEntity<?> emudraRequest(@RequestBody SfdcTdlDocResponse emudraDocRequestList){
+        return emudraService.saveData(emudraDocRequestList);
 
 //        return null;
     }

@@ -7,22 +7,22 @@
 
 	<Appenders>
 		<RollingFile name="AppLayerLogger"
-					 fileName="${log-path}/ApTest.log"
-					 filePattern="${log-path}-archive-%d{yyyy-MM-dd}-%i.gz">
+					 fileName="${log-path}ProjectLogger.log"
+					 filePattern="${log-path}ProjectLogger-archive-%d{yyyy-MM-dd}-%i.gz">
 			<PatternLayout>
 				<pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %t %-5p C:%C{1}  M:%M L:%L - %m%n</pattern>
 			</PatternLayout>
 			<Policies>
 				<OnStartupTriggeringPolicy />
-				<SizeBasedTriggeringPolicy size="100MB" />
+				<SizeBasedTriggeringPolicy size="50MB" />
 				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
 			</Policies>
-			<!--<DefaultRolloverStrategy max="50">
-				<Delete basePath="${env:LOG_PATH}" maxDepth="2">
-					<IfFileName glob="*/ErrorManagement*.log.gz" />
-					<IfLastModified age="P90D" />
+			<DefaultRolloverStrategy max="50">
+				<Delete basePath="${log-path}" maxDepth="25">
+					<IfFileName glob="*ProjectLogger*.gz" />
+					<IfLastModified age="P1D" />
 				</Delete>
-			</DefaultRolloverStrategy>-->
+			</DefaultRolloverStrategy>
 		</RollingFile>
 -->
 		<Console name="console" target="SYSTEM_OUT">

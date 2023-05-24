@@ -16,7 +16,7 @@ public class SfdcTdlDocResponse implements Serializable {
 //	@GeneratedValue(strategy=GenerationType.IDENTITY)
 //	private Long id;
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+//	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="lead_id") //primery key
 	private Integer leadId;
 

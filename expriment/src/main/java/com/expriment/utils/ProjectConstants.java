@@ -6,6 +6,7 @@ public interface ProjectConstants {
 
      interface DB{
          String  Exp_User = "expuser";
+//         String  Exp_User = "tcl_cd_app_new";
       }
 
      public static final String SUCCESS ="Success";
@@ -17,6 +18,7 @@ public interface ProjectConstants {
      public static final String EMUDRA_HashOrOppId_ERROR_CODE= "01";
      public static final String EMUDRA_SYS_SUCCESS_CODE= "02";
      public static final String EMUDRA_DocData_ERROR_CODE= "03";
+     public static final String PROJECT_ERROR_CODE= "001";
 
      public static final String DATA_NOT_FOUND_MESSAGE = "Data Not Found";
      public static final String CPID_NOT_FOUND_MESSAGE = "CpId Not Found";

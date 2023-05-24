@@ -14,7 +14,11 @@ public interface EmudraService {
 
 //    RootResponse saveDocForEmudra(List<DocTypeData> emudraDocRequest, String leadId, String customerHash);
 
-    RootResponse saveDocForEmudra(DocTypeData emudraDocRequest, String leadId, String customerHash);
+//    RootResponse saveDocForEmudra(DocTypeData emudraDocRequest, String leadId, String customerHash);
+
+//    ResponseEntity<?> saveEmudraDocumentService(EmudraDocRequest emudraDocRequest);
+
+    RootResponse saveDocForEmudra(List<DocTypeData> emudraDocRequest, String leadId, String customerHash);
 
     EmudraRequest creatingEmudraRequest(String leadId);
 
