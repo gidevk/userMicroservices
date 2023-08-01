@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
  */
 
 @Configuration
-@Profile({ "application-project-url"})
+@Profile({ "application-project-url, "})
 public class AppProps {
 
 	@Value("${location_to_upload_doc}")
@@ -33,6 +33,62 @@ public class AppProps {
 
 	@Value("${emudra.document.Esign.path}")
 	private String eMudraFilePath;
+
+	// Karza api url
+	@Value("${tcl.apis.karza.url}")
+	private String karzaUrl;
+
+	@Value("${tcl_pl_delegator_auth_token.url}")
+	private String tclPlDelegatorAuthTokenUrl;
+
+	@Value("${tcl_pl_delegator_ckycDecision.url}")
+	private String tclPlDelegatorCkycDecisionUrl;
+
+	@Value("${tcl_pl_delegator_checkStatus.url}")// why this url is not found in properties file
+	private String tclPlDelegatorCheckStatusUrl;
+
+	@Value("${cdpl.callback.document.pickup.url}")
+	private String cdPlDocumentPickupCallbackUrl;
+
+	public String getCdPlDocumentPickupCallbackUrl() {
+		return cdPlDocumentPickupCallbackUrl;
+	}
+
+	public void setCdPlDocumentPickupCallbackUrl(String cdPlDocumentPickupCallbackUrl) {
+		this.cdPlDocumentPickupCallbackUrl = cdPlDocumentPickupCallbackUrl;
+	}
+
+	public String getTclPlDelegatorAuthTokenUrl() {
+		return tclPlDelegatorAuthTokenUrl;
+	}
+
+	public void setTclPlDelegatorAuthTokenUrl(String tclPlDelegatorAuthTokenUrl) {
+		this.tclPlDelegatorAuthTokenUrl = tclPlDelegatorAuthTokenUrl;
+	}
+
+	public String getTclPlDelegatorCkycDecisionUrl() {
+		return tclPlDelegatorCkycDecisionUrl;
+	}
+
+	public void setTclPlDelegatorCkycDecisionUrl(String tclPlDelegatorCkycDecisionUrl) {
+		this.tclPlDelegatorCkycDecisionUrl = tclPlDelegatorCkycDecisionUrl;
+	}
+
+	public String getTclPlDelegatorCheckStatusUrl() {
+		return tclPlDelegatorCheckStatusUrl;
+	}
+
+	public void setTclPlDelegatorCheckStatusUrl(String tclPlDelegatorCheckStatusUrl) {
+		this.tclPlDelegatorCheckStatusUrl = tclPlDelegatorCheckStatusUrl;
+	}
+
+	public String getKarzaUrl() {
+		return karzaUrl;
+	}
+
+	public void setKarzaUrl(String karzaUrl) {
+		this.karzaUrl = karzaUrl;
+	}
 
 	public String geteMudraFilePath() {
 		return eMudraFilePath;

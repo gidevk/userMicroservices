@@ -6,5 +6,7 @@ import org.apache.logging.log4j.Logger;
 public class LoggerClass {
 
     public static Logger appLayerLogger= LogManager.getLogger("AppLayerLogger");
+    public static Logger dataloaderLogger= LogManager.getLogger("DataloaderLogger");
+
 
 }

@@ -1,26 +1,25 @@
 package com.expriment.Controller;
 
 
+import com.expriment.DAO.ApplicationStatusDAO;
 import com.expriment.entity.vo.NameMatchKarzaRequest;
 import com.expriment.entity.vo.NameMatchKarzaResponse;
-import com.expriment.entity.vo.karzaResponse;
+import com.expriment.service.NameMatchingService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 
-@Component
+@Service
 public class CKYCServiceImpl  {
 
     /*@Autowired
@@ -51,27 +50,46 @@ public class CKYCServiceImpl  {
     public DocUploadServiceImpl docUploadServiceImpl;
 
     @Autowired
-    static NameMatchingService nameMatchingService;*/
+   NameMatchingService nameMatchingService;*/
+
+    @Autowired
+    ApplicationStatusDAO applicationStatusDAO;
+
+    @Autowired
+    NameMatchingService nameMatchingService;
+
 
     public static final Logger logger = LogManager.getLogger("CKYCServiceImpl.class");
 
 
 
-  /*  public static void main(String[] args) {
+   /* public static void main(String[] args) {
         CKYCServiceImpl ckycService = new CKYCServiceImpl();
         try {
-            checkingMachingDetails(12345667l);
+            checkingMachingDetails(7l);
         } catch (Exception e) {
             logger.error(e.getMessage() ,e);
             e.printStackTrace();
         }
     }*/
+    /*
+     * @author Indradev.kuamr
+     */
 
-    public static void checkingMachingDetails(Long leadId) {
+    public NameMatchKarzaResponse checkingMachingDetails(Long leadId) {
         logger.info("Inside checkingMachingDetails----->>>");
         String matchFaild = null;
         boolean flag= true;
         StringBuilder matchFailedError =new StringBuilder();
+        NameMatchKarzaResponse nameMatchKarzaResponse = new NameMatchKarzaResponse();
+
+        NameMatchKarzaRequest nameMatchKarzaRequest = new NameMatchKarzaRequest();
+        nameMatchKarzaRequest.setCustomerHash("offerModule.getCustomerHashNew()");
+        nameMatchKarzaRequest.setName("ckycName.trim()");
+        nameMatchKarzaRequest.setPlWebtopId("offerModule.getPlWebTopId()");
+        nameMatchKarzaRequest.setPlLeadId(leadId.toString());
+
+        Map<String, Boolean> customerNameMatchResponse = nameMatchingService.matchingInputsWithEvokeAPI(nameMatchKarzaRequest);
 
 //        CKYCDownloadResponse ckycDownAddressResp = tclServiceManager.getCommonService().getCKYCDownloadResponse(Long.valueOf(leadId));
 
@@ -105,7 +123,7 @@ public class CKYCServiceImpl  {
                     ckycDob = format.format(ckycDate);
                     logger.info("CKYC date after format : "  + ckycDob);
 
-                    Date offerModuledob = new SimpleDateFormat("dd-MM-yyyy").parse("10-05-1992");//offerModule.getCustomerEnteredDob();
+                    Date offerModuledob = new SimpleDateFormat("dd-MM-yyyy").parse("10-05-1991");//offerModule.getCustomerEnteredDob();
                     logger.info("offer module date before format : " + offerModuledob);
                     offerModuledob2 = format.format(offerModuledob);
                     logger.info("offer module date after format : "  + offerModuledob2);
@@ -142,21 +160,21 @@ public class CKYCServiceImpl  {
                     } else {
                         logger.error(" name match success for CKYC service---------------->");
                     }*/
-                NameMatchKarzaRequest nameMatchKarzaRequest = new NameMatchKarzaRequest();
+                 nameMatchKarzaRequest = new NameMatchKarzaRequest();
 
-                nameMatchKarzaRequest.setCustomerHash("customerHash1");//offerModule.getCustomerHash());
-                nameMatchKarzaRequest.setName(ckycName.trim());
-                nameMatchKarzaRequest.setPlWebtopId("webtop123");//offerModule.getPlWebTopId());
-                nameMatchKarzaRequest.setPlLeadId(leadId.toString());
+                nameMatchKarzaRequest.setCustomerHash("a2d1f28472ef70ada542305fd7698871");//offerModule.getCustomerHash());
+                nameMatchKarzaRequest.setName("Pradeep");
+                nameMatchKarzaRequest.setPlWebtopId("453CZ0000542");//offerModule.getPlWebTopId());
+                nameMatchKarzaRequest.setPlLeadId("26061");
 
-                NameMatchKarzaResponse nameMatchKarzaResponse = NameMatchKarza(nameMatchKarzaRequest);
+                nameMatchKarzaResponse = NameMatchKarza(nameMatchKarzaRequest);
                 if(nameMatchKarzaResponse != null) {
                     /* if(!nameMatchKarzaResponse.getRetStatus().equalsIgnoreCase("SUCCESS")*//*&&
                     nameMatchKarzaResponse.getResponse().getScore() == 00l*//*){
                         logger.error("customer name match RetStatus not Success for CKYC service");
                         matchFailedError =matchFailedError.append( ",NAME_MISMATCH");
                     }else */
-                    if(!nameMatchKarzaResponse.getRetStatus().equalsIgnoreCase("SUCCESS")
+                    if(false ||!nameMatchKarzaResponse.getRetStatus().equalsIgnoreCase("SUCCESS")
                             ||nameMatchKarzaResponse.getResponse().getScore() <= 0.6f){
                         logger.error("customer name match failed because of score is < 60 % OR RetStatus not Success in CKYC service");
                         matchFailedError =matchFailedError.append( ",NAME_MISMATCH");
@@ -173,7 +191,14 @@ public class CKYCServiceImpl  {
 //                saveOrUpdateCKYCStatus(leadId, APINameConstants.CKYC_DOWNLOAD, "ERRMM01",
 //                        matchFailedError.toString());
             }
+           /* ApplicationStatus applicationStatus = applicationStatusDAO.getApplicationStatus(String.valueOf(leadId));
+            if(applicationStatus!=null && nameMatchKarzaResponse != null) {
+                logger.info("Updating application status table.."+nameMatchKarzaResponse.getResponse().getScore());
+                applicationStatus.setCkyNameMatchScore(nameMatchKarzaResponse.getResponse().getScore());
+                applicationStatusDAO.saveOrUpdateApplicationStatus(applicationStatus);
+            }*/
         }
+        return nameMatchKarzaResponse;
     }
 
     public static NameMatchKarzaResponse NameMatchKarza(NameMatchKarzaRequest request){
@@ -189,7 +214,7 @@ public class CKYCServiceImpl  {
             Boolean enabledProxy = appCommonProps.getEnableProxy();
 
             logger.info("Enabled proxy is set to {}",enabledProxy);*/
-          /*  karzaURL=tclAPIsProps.getKarzaUrl();
+            karzaURL= "https://apicast-uat-jocatafrontendadapter.tclnprdservice.tatacapital.com/rest/jocata/v1.0/tatadigital/name-match-score";
 
             logger.info("karza api URL {}",karzaURL);
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
@@ -197,14 +222,13 @@ public class CKYCServiceImpl  {
             headers.set("Content-Type", "application/json");
             headers.add("Authorization", "Basic MTNlMzkxNzY6am9jYXRhdWF0");
             headers.add("ConversationID", conversationId);
-            headers.add("SourceName", "Jocata");
+            headers.add("SourceName", "jocata");
             logger.info("headers: "+headers);
 
             HttpEntity<?> httpEntity = new HttpEntity<>(request, headers);
 
            response= restTemplate.postForObject(karzaURL, httpEntity, NameMatchKarzaResponse.class);
-*/
-            karzaResponse karzaResponse= new karzaResponse();
+           /* karzaResponse karzaResponse= new karzaResponse();
             karzaResponse.setCustomerHash("customerhash");
             karzaResponse.setErrorCode("200");
             karzaResponse.setErrorMessage("error message");
@@ -215,7 +239,7 @@ public class CKYCServiceImpl  {
 
             response.setResponse(karzaResponse);
             response.setRetStatus("Success");
-
+*/
             return response;
         } catch (Exception e) {
             e.printStackTrace();

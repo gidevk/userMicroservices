@@ -1,5 +1,6 @@
 package com.expriment.service.serviceImpl;
 
+import com.expriment.Controller.CKYCServiceImpl;
 import com.expriment.DAO.UserDetailsDao;
 import com.expriment.entity.UserDetails;
 import com.expriment.service.PersonalDetailsService;
@@ -26,12 +27,16 @@ public class PersonalDetailsServiceImpl implements PersonalDetailsService {
     @Autowired
     UserDetailsDao userDetailsDao;
 
+     @Autowired
+     CKYCServiceImpl ckycService;
+
     @Override
     public ResponseEntity<?> savePersonalDetails(UserDetails userDetails){
         UserDetails userDetailsResponse =new UserDetails();
         ErrorResponse errorResponse = new ErrorResponse();
 
         try {
+            ckycService.checkingMachingDetails(7l);
             LoggerClass.appLayerLogger.info("savePersonalDetails is Stared.");
 
            /* if (Integer.toString(userDetails.getCpId()).equalsIgnoreCase("null"))

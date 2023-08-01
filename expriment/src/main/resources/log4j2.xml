@@ -10,11 +10,11 @@
 					 fileName="${log-path}ProjectLogger.log"
 					 filePattern="${log-path}ProjectLogger-archive-%d{yyyy-MM-dd}-%i.gz">
 			<PatternLayout>
-				<pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %t %-5p C:%C{1}  M:%M L:%L - %m%n</pattern>
+				<pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] [%t] %-5p C:%C{1}  M:%M L:%L %X{apiName}- %m%n</pattern>
 			</PatternLayout>
 			<Policies>
 				<OnStartupTriggeringPolicy />
-				<SizeBasedTriggeringPolicy size="50MB" />
+				<SizeBasedTriggeringPolicy size="1MB" />
 				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
 			</Policies>
 			<DefaultRolloverStrategy max="50">
@@ -24,9 +24,28 @@
 				</Delete>
 			</DefaultRolloverStrategy>
 		</RollingFile>
--->
+
+		<RollingFile name="DataloaderLogger"
+					 fileName="${log-path}ProjectLogger.log"
+					 filePattern="${log-path}ProjectLogger-archive-%d{yyyy-MM-dd}-%i.gz">
+			<PatternLayout>
+				<pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}][%t] %-5p C:%C{1} M:%M L:%L %X{apiName}- %m%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="1MB" />
+				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+			</Policies>
+			<DefaultRolloverStrategy max="50">
+				<Delete basePath="${log-path}" maxDepth="25">
+					<IfFileName glob="*ProjectLogger*.gz" />
+					<IfLastModified age="P1D" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+
 		<Console name="console" target="SYSTEM_OUT">
-			<PatternLayout ><pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] %t %-5p C:%C{1}  M:%M L:%L - %m%n</pattern></PatternLayout>
+			<PatternLayout ><pattern>%d{yyyy-MM-dd HH:mm:ss} [%X{traceId}/%X{spanId}] [%t] %-5p C:%C{1} M:%M L:%L ApiName:-%X{apiName}- %m%n</pattern></PatternLayout>
 		</Console>
 	</Appenders>
 
@@ -34,6 +53,7 @@
 	<Loggers>
 		<AsyncLogger name="AppLayerLogger" level="error" additivity="false" includeLocation="true">
 			<appender-ref ref="AppLayerLogger" level="error" />
+			<appender-ref ref="DataloaderLogger" level="error" />
 
 		</AsyncLogger>
 		<AsyncRoot level="info" additivity="false" includeLocation="true">
@@ -43,6 +63,10 @@
 		</AsyncRoot>
 		<Logger name="AppLayerLogger" level="info" additivity="false" includeLocation="true" >
 			<AppenderRef ref="AppLayerLogger"/>
+			<AppenderRef ref="console" level="info" />
+		</Logger>
+		<Logger name="DataloaderLogger" level="info" additivity="false" includeLocation="true" >
+			<AppenderRef ref="DataloaderLogger"/>
 			<AppenderRef ref="console" level="info" />
 		</Logger>
 	</Loggers>

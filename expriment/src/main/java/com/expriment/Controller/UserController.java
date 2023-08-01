@@ -5,18 +5,16 @@ import com.expriment.Testing.EmudraDocRequest;
 import com.expriment.Testing.EmudraRequest;
 import com.expriment.Testing.SfdcTdlDocResponse;
 import com.expriment.entity.UserEntity;
+import com.expriment.service.XmlToJsonService;
 import com.expriment.service.serviceImpl.EmudraServiceImpl;
 import com.expriment.service.serviceImpl.UserDetailsServiceImpl;
+import com.expriment.utils.audit.LoggerClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Base64;
 
 @Controller
 @RequestMapping("/user")
@@ -33,6 +31,9 @@ public class UserController {
 
     @Autowired
     EmudraServiceImpl emudraService;
+
+    @Autowired
+    XmlToJsonService xmlToJsonService;
 
  @GetMapping("/{userId}")
     public UserEntity getUser(@PathVariable("userId") Long userId){
@@ -63,9 +64,17 @@ public class UserController {
 
     @PostMapping(value = "/saveEmudra", produces = {MediaType.APPLICATION_JSON_VALUE}) // /user/saveEmudra
     public ResponseEntity<?> callEmudra(@RequestBody EmudraDocRequest emudraRequest){
-            return emudraService.saveEmudraDocumentService(emudraRequest);
+     LoggerClass.appLayerLogger.info("hi /saveEmudra");
+        return emudraService.saveEmudraDocumentService(emudraRequest);
 //            return (ResponseEntity<SfdcTdlDocResponse>) docUploadService.saveSfdcDocResponse(sfdcTdlDocResponse);
 //        return new ResponseEntity<>(userDetailsService.saveUserDetails(userDetails), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/digiloker",produces = {MediaType.APPLICATION_ATOM_XML_VALUE})
+    public void digilocker(String data){
+        xmlToJsonService.extractingXmlData(data);
+//        xmlToJsonService.dobMatch(38480l);
+//        return ResponseEntity(xmlToJsonService.extractingXmlData(data),HttpStatus.OK)
     }
 }
 
