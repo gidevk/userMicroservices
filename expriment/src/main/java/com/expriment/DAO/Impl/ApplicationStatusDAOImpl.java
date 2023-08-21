@@ -77,7 +77,7 @@ public class ApplicationStatusDAOImpl implements ApplicationStatusDAO {
 					"LEFT JOIN tbl_personal_info ON tbl_app_lead_mapping.`j_application_id`=tbl_personal_info.`j_application_id`)\n"+
 					"WHERE tbl_app_lead_mapping.`j_application_id` = "+leadId;
 			
-			logger.info(" getCustomerData query " +  query);
+			LoggerClass.appLayerLogger.info(" getCustomerData query " +  query);
 			details = hibernateUtils.loadDetailsBySqlQuery(query);
 			return details;
 		} catch (Exception e) {

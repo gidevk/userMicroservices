@@ -34,7 +34,7 @@ public class EmailServicesImpl implements EmailServices {
     @Override
     public SmsMailResponse sendMail(SmsMailPayload mailPayload) {
 
-        LoggerClass.appLayerLogger.info("sendMail block");
+        LoggerClass.appLayerLoggerClass.appLayerLogger.info("sendMail block");
         SmsMailResponse rootResponse = new SmsMailResponse();
         AuditDetailsPayload auditDetailsPayload = new AuditDetailsPayload();
 
@@ -67,12 +67,12 @@ public class EmailServicesImpl implements EmailServices {
             message.setContent(mimeMultipart);
 
             if(mailPayload != null && mailPayload.getFile() != null && mailPayload.getFile().exists()) {
-                LoggerClass.appLayerLogger.info("inside attachment block");
+                LoggerClass.appLayerLoggerClass.appLayerLogger.info("inside attachment block");
                 FileSystemResource fr = new FileSystemResource(mailPayload.getFile());
 				helper.addAttachment(mailPayload.getFile().getName(), fr);
 
-                LoggerClass.appLayerLogger.info("CompleteFilePath: {}",mailPayload.getCompleteFilePath());
-                LoggerClass.appLayerLogger.info("File Name:{}",mailPayload.getFile().getName());
+                LoggerClass.appLayerLoggerClass.appLayerLogger.info("CompleteFilePath: {}",mailPayload.getCompleteFilePath());
+                LoggerClass.appLayerLoggerClass.appLayerLogger.info("File Name:{}",mailPayload.getFile().getName());
                 messageBodyPart = new MimeBodyPart();
                 DataSource source = new FileDataSource(mailPayload.getCompleteFilePath());
                 messageBodyPart.setDataHandler(new DataHandler(source));
@@ -82,11 +82,11 @@ public class EmailServicesImpl implements EmailServices {
                 // Send the complete message parts
                 message.setContent(mimeMultipart);
             } else {
-                LoggerClass.appLayerLogger.info("no attacgement");
+                LoggerClass.appLayerLoggerClass.appLayerLogger.info("no attacgement");
             }
 
             javaMailSender.send(message);
-            LoggerClass.appLayerLogger.info("Mail send Successfully");
+            LoggerClass.appLayerLoggerClass.appLayerLogger.info("Mail send Successfully");
             auditDetailsPayload.setResponse("Email sent successfully");
             auditDetailsPayload.setStatus(ProjectConstants.SUCCESS);
             rootResponse.setRetStatus(ProjectConstants.SUCCESS);

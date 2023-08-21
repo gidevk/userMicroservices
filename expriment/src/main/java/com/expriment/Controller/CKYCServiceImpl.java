@@ -5,6 +5,7 @@ import com.expriment.DAO.ApplicationStatusDAO;
 import com.expriment.entity.vo.NameMatchKarzaRequest;
 import com.expriment.entity.vo.NameMatchKarzaResponse;
 import com.expriment.service.NameMatchingService;
+import com.expriment.utils.audit.LoggerClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +78,7 @@ public class CKYCServiceImpl  {
      */
 
     public NameMatchKarzaResponse checkingMachingDetails(Long leadId) {
-        logger.info("Inside checkingMachingDetails----->>>");
+        LoggerClass.appLayerLogger.info("Inside checkingMachingDetails----->>>");
         String matchFaild = null;
         boolean flag= true;
         StringBuilder matchFailedError =new StringBuilder();
@@ -104,7 +105,7 @@ public class CKYCServiceImpl  {
 
             if(pinCode!=null /*&& offerModule!=null && offerModule.getCustomerPincode()!=null*/) { //pincode
                 if(!pinCode.equalsIgnoreCase("500089"/*offerModule.getCustomerPincode()*/)) {
-                    logger.info("Pin code match failed");
+                    LoggerClass.appLayerLogger.info("Pin code match failed");
                     //matchFaild = "PINCODE_MATCH";
                     matchFailedError =matchFailedError.append( ",PINCODE_MISMATCH");
                     //have to drop here.
@@ -117,26 +118,26 @@ public class CKYCServiceImpl  {
                 String offerModuledob2 = null;
                 try {
 
-                    logger.info("CKYC date before format : "  + dob);
+                    LoggerClass.appLayerLogger.info("CKYC date before format : "  + dob);
                     Date ckycDate = new SimpleDateFormat("dd-MM-yyyy").parse(dob);
                     SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy");
                     ckycDob = format.format(ckycDate);
-                    logger.info("CKYC date after format : "  + ckycDob);
+                    LoggerClass.appLayerLogger.info("CKYC date after format : "  + ckycDob);
 
                     Date offerModuledob = new SimpleDateFormat("dd-MM-yyyy").parse("10-05-1991");//offerModule.getCustomerEnteredDob();
-                    logger.info("offer module date before format : " + offerModuledob);
+                    LoggerClass.appLayerLogger.info("offer module date before format : " + offerModuledob);
                     offerModuledob2 = format.format(offerModuledob);
-                    logger.info("offer module date after format : "  + offerModuledob2);
+                    LoggerClass.appLayerLogger.info("offer module date after format : "  + offerModuledob2);
                 } catch (Exception e) {
-                    logger.info("Exception while dob match failed ..",e);
+                    LoggerClass.appLayerLogger.info("Exception while dob match failed ..",e);
                     matchFailedError =matchFailedError.append( ",DOB_MISMATCH");
 
                 }
 
-                logger.info("ckycDob and dobofferModule : " +ckycDob +"====>" +offerModuledob2);
+                LoggerClass.appLayerLogger.info("ckycDob and dobofferModule : " +ckycDob +"====>" +offerModuledob2);
 
                 if(!ckycDob.equals(offerModuledob2)) {
-                    logger.info("dob match failed");
+                    LoggerClass.appLayerLogger.info("dob match failed");
                     matchFailedError =matchFailedError.append( ",DOB_MISMATCH");
                     //drop customer
                     flag= false;
@@ -187,13 +188,13 @@ public class CKYCServiceImpl  {
             }
             if(matchFailedError.length()>0) {
                 matchFailedError.deleteCharAt(0);
-                logger.info("Final matchFailedError : "+ matchFailedError);
+                LoggerClass.appLayerLogger.info("Final matchFailedError : "+ matchFailedError);
 //                saveOrUpdateCKYCStatus(leadId, APINameConstants.CKYC_DOWNLOAD, "ERRMM01",
 //                        matchFailedError.toString());
             }
            /* ApplicationStatus applicationStatus = applicationStatusDAO.getApplicationStatus(String.valueOf(leadId));
             if(applicationStatus!=null && nameMatchKarzaResponse != null) {
-                logger.info("Updating application status table.."+nameMatchKarzaResponse.getResponse().getScore());
+                LoggerClass.appLayerLogger.info("Updating application status table.."+nameMatchKarzaResponse.getResponse().getScore());
                 applicationStatus.setCkyNameMatchScore(nameMatchKarzaResponse.getResponse().getScore());
                 applicationStatusDAO.saveOrUpdateApplicationStatus(applicationStatus);
             }*/
@@ -213,17 +214,17 @@ public class CKYCServiceImpl  {
             final int port = appCommonProps.getProxyPort();
             Boolean enabledProxy = appCommonProps.getEnableProxy();
 
-            logger.info("Enabled proxy is set to {}",enabledProxy);*/
+            LoggerClass.appLayerLogger.info("Enabled proxy is set to {}",enabledProxy);*/
             karzaURL= "https://apicast-uat-jocatafrontendadapter.tclnprdservice.tatacapital.com/rest/jocata/v1.0/tatadigital/name-match-score";
 
-            logger.info("karza api URL {}",karzaURL);
+            LoggerClass.appLayerLogger.info("karza api URL {}",karzaURL);
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 
             headers.set("Content-Type", "application/json");
             headers.add("Authorization", "Basic MTNlMzkxNzY6am9jYXRhdWF0");
             headers.add("ConversationID", conversationId);
             headers.add("SourceName", "jocata");
-            logger.info("headers: "+headers);
+            LoggerClass.appLayerLogger.info("headers: "+headers);
 
             HttpEntity<?> httpEntity = new HttpEntity<>(request, headers);
 
@@ -284,7 +285,7 @@ public class CKYCServiceImpl  {
 
    /* @SuppressWarnings("unused")
 	private void callDmsPushService(UploadDoc uploadDoc, String appId) {
-    	logger.info("Sending uploading doc to DMS : Start "+ uploadDoc.getDocId() + " ,"+ uploadDoc.getDocUploadName() );
+    	LoggerClass.appLayerLogger.info("Sending uploading doc to DMS : Start "+ uploadDoc.getDocId() + " ,"+ uploadDoc.getDocUploadName() );
     	DocUploadPayload docUploadPayload = new DocUploadPayload();
 
         CDIOfferModule offerModule= cdiOfferModuleDataDAO.getOfferDataByPlLeadId(Long.valueOf(appId));
@@ -310,7 +311,7 @@ public class CKYCServiceImpl  {
 		}
 
         try {
-			logger.info("DocUploadPayload ->: " + objectMapper.writeValueAsString(docUploadPayload));
+			LoggerClass.appLayerLogger.info("DocUploadPayload ->: " + objectMapper.writeValueAsString(docUploadPayload));
 		} catch (JsonProcessingException e) {
 			// TODO Auto-generated catch block
             logger.error("Exception in callDmsPushService()", e);
@@ -318,9 +319,9 @@ public class CKYCServiceImpl  {
         }
 		DocUploadResponse documentUploadResponse = docUploadServiceImpl.uploadDocV2(docUploadPayload);
         if (documentUploadResponse != null && documentUploadResponse.getRetStatus() != null) {
-        	logger.info("Upload Doc sucess");
+        	LoggerClass.appLayerLogger.info("Upload Doc sucess");
         }
-    	logger.info("Sending uploading doc to DMS : Ends "+uploadDoc.getDocId());
+    	LoggerClass.appLayerLogger.info("Sending uploading doc to DMS : Ends "+uploadDoc.getDocId());
 
     }*/
 

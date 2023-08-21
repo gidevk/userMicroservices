@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="DEBUG">
 	<Properties>
-		<Property name="log-path">D:\logs\log</Property>
+		<Property name="log-path">D:/logs/</Property>
+<!--		<Property name="log-path">${logs.file}</Property>-->
 		<!--		<Property name="log-path-info">${LOG_FILE}</Property>-->
 	</Properties>
+
+<!--	<Properties>-->
+<!--		<Property name="log-path">${bundle:application-dev:log.files}</Property> &lt;!&ndash;it's woking fine&ndash;&gt;-->
+<!--		<Property name="log-path">${spring:log.file}</Property>  not worked-->
+<!--		<Property name="log-path">${log.file}</Property>  not worked-->
+<!--		<Property name="log-path">logFile</Property>  not worked-->
+<!--		<Property name="log-path">${bundle:customLookup:log.file}</Property>-->
+<!--		<Property name="log-paths">${${bundle:customLookup}-${spring.profiles.active}:log.files}</Property>-->
+
+<!--	</Properties>-->
 
 	<Appenders>
 		<RollingFile name="AppLayerLogger"

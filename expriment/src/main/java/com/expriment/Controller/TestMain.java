@@ -21,7 +21,7 @@ public class TestMain {
 //                        if (doc.getLeadId()== null){doc.setLeadId(leadId); }
 
                     rootResponse1= saveDocForEmudra(doc,leadId,custmerHash);
-                    logger.info("Saved docuementType {} with Status {}",doc.getDocType(), rootResponse1.getRetStatus());
+                    LoggerClass.appLayerLogger.info("Saved docuementType {} with Status {}",doc.getDocType(), rootResponse1.getRetStatus());
                 }else if(doc.getDocType() == null && doc.getDocType().equals("")){
                     flag=1;
                     if (!doc.getDocType().equals("sl"))  // TODO: 4/10/2023 hhhh

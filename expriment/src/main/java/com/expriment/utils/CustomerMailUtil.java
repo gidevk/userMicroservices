@@ -27,7 +27,7 @@ public class CustomerMailUtil {
 			+ "font-weight: bold;" + ">Tata Capital Financial Services Ltd</p></div></body>";
 
 	/*public boolean sendEmail(String filePath, String toMail, CDIOfferModule cdiOfferModule) {
-		logger.info("Begin : sendEmail()");
+		LoggerClass.appLayerLogger.info("Begin : sendEmail()");
 
 		try {
 			ObjectMapper objectMapper = new ObjectMapper();
@@ -44,26 +44,26 @@ public class CustomerMailUtil {
 			File file = new File(filePath);
 			if (file != null) {
 				smsMailPayload.setFile(file);
-				logger.info("Name: " + file.getName());
+				LoggerClass.appLayerLogger.info("Name: " + file.getName());
 				smsMailPayload.setFileName(file.getName());
 				smsMailPayload.setCompleteFilePath(file.getPath());
-				logger.info("AbsolutePath: " + file.getAbsolutePath());
-				logger.info("Path: " + file.getPath());
+				LoggerClass.appLayerLogger.info("AbsolutePath: " + file.getAbsolutePath());
+				LoggerClass.appLayerLogger.info("Path: " + file.getPath());
 			}
 
 			smsMailPayload.setMessage(EMAIL_BODY);
 			smsMailPayload.setMailTo(toMail);
-			logger.info("SmsMailPayload : " + objectMapper.writeValueAsString(smsMailPayload));
+			LoggerClass.appLayerLogger.info("SmsMailPayload : " + objectMapper.writeValueAsString(smsMailPayload));
 			MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 			headers.add("Content-Type", "application/json");
 			RestTemplate restTemplate = new RestTemplate();
 			String sendMailUrl = "tcl.pl.services.url}/sms/services/v0.1/sendEmail";//tclServicesProps.getSendEmailUrl();
-			logger.info("Send Mail Url : " + sendMailUrl);
+			LoggerClass.appLayerLogger.info("Send Mail Url : " + sendMailUrl);
 
 			HttpEntity<SmsMailPayload> httpEntity1 = new HttpEntity<>(smsMailPayload, headers);
 			smsMailResponse = restTemplate.postForObject(sendMailUrl, httpEntity1, SmsMailResponse.class);
 
-			logger.info("Mail status response for sanction : " + smsMailResponse);
+			LoggerClass.appLayerLogger.info("Mail status response for sanction : " + smsMailResponse);
 			if (smsMailResponse == null) {
 				smsMailResponse = new SmsMailResponse();
 				smsMailResponse.setRetStatus(ProjectConstants.FAIL);
@@ -71,21 +71,21 @@ public class CustomerMailUtil {
 				smsMailResponse.setSysErrorMessage("API failed");
 				smsMailResponse.setIsSendMail(false);
 			} else {
-				smsMailResponse.setRetStatus("success");//UtilityConstants.STATUS_CODE_PARAMS.SUCCESS);
+				smsMailResponse.setRetStatus("success");//ProjectConstants.STATUS_CODE_PARAMS.SUCCESS);
 				smsMailResponse.setIsSendMail(true);
 				smsMailResponse.setSysErrorCode("");
 				smsMailResponse.setSysErrorMessage("");
-				logger.info("***** Mail send Successfully for sanction : " + toMail);
+				LoggerClass.appLayerLogger.info("***** Mail send Successfully for sanction : " + toMail);
 
 			}
-			logger.info("Email sending complete.");
+			LoggerClass.appLayerLogger.info("Email sending complete.");
 
 			return true;
 		} catch (Exception e) {
 			// e.printStackTrace();
 			logger.error("Got the exception while sending email. : ", e);
 		}
-		logger.info("End : sendEmail()");
+		LoggerClass.appLayerLogger.info("End : sendEmail()");
 		return false;
 	}
 

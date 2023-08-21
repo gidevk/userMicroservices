@@ -2,6 +2,7 @@ package com.expriment.utils.audit.Service.Impl;
 
 import com.expriment.utils.ProjectConstants;
 import com.expriment.utils.audit.DAO.BankDetailsDAO;
+import com.expriment.utils.audit.LoggerClass;
 import com.expriment.utils.audit.Service.BankDetailsService;
 import com.expriment.utils.audit.entity.BankDetails;
 import com.expriment.utils.audit.entity.vo.ErrorResponse;
@@ -26,14 +27,14 @@ public class BankDetailsServiceImpl implements BankDetailsService {
     public BankDetails saveBankDetails(BankDetails bankDetails){
         BankDetails bankDetailsResponse = new BankDetails();
         try {
-            logger.info("Save bank Details stared");
+            LoggerClass.appLayerLogger.info("Save bank Details stared");
             if (bankDetails != null && bankDetails.getCpId() != null) {
                 bankDetails.setCreatedDate(new Date());
             }
             bankDetailsResponse= bankDetailsDAO.saveBankDetails(bankDetails);
 
 
-            logger.info("Save bank details Ended.");
+            LoggerClass.appLayerLogger.info("Save bank details Ended.");
         } catch (Exception e) {
             e.printStackTrace();
         }

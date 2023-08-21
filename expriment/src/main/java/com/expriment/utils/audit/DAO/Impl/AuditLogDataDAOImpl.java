@@ -3,6 +3,7 @@ package com.expriment.utils.audit.DAO.Impl;
 
 import com.expriment.utils.audit.Hibernate.HibernateUtils;
 import com.expriment.utils.audit.DAO.AuditLogDataDAO;
+import com.expriment.utils.audit.LoggerClass;
 import com.expriment.utils.audit.entity.AuditLogData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +25,7 @@ public class AuditLogDataDAOImpl implements AuditLogDataDAO {
     public AuditLogData saveAuditLogs(AuditLogData auditLogData) {
         AuditLogData auditLogDataResponse = new AuditLogData();
         try {
-            logger.debug("saveAuditLogs Started.");
+            LoggerClass.appLayerLogger.debug("saveAuditLogs Started.");
             auditLogDataResponse= hibernateUtils.saveOrUpdateEntity(auditLogData);
         } catch (Exception e) {
             e.printStackTrace();
@@ -36,7 +37,7 @@ public class AuditLogDataDAOImpl implements AuditLogDataDAO {
     public AuditLogData getAuditLogDataByLgId(Integer auditLogId) {
         AuditLogData auditLogData= new AuditLogData();
         try {
-            logger.debug("getAuditLogDataByLgId Started.");
+            LoggerClass.appLayerLogger.debug("getAuditLogDataByLgId Started.");
             auditLogData= hibernateUtils.findEntityById(AuditLogData.class,(auditLogId));
         } catch (Exception e) {
             e.printStackTrace();
@@ -48,7 +49,7 @@ public class AuditLogDataDAOImpl implements AuditLogDataDAO {
     public  List<AuditLogData> getAuditLogDataByCpId(Integer cpId) {
         List<AuditLogData> auditLogData = null;
         try {
-            logger.debug("getAuditLogDataByLgId Started.");
+            LoggerClass.appLayerLogger.debug("getAuditLogDataByLgId Started.");
             String hql = "SELECT aud FROM AuditLogData as aud WHERE cpId ="+cpId;
             auditLogData= hibernateUtils.loadEntitiesByHQL(hql);
         } catch (Exception e) {

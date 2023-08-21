@@ -2,6 +2,7 @@ package com.expriment.utils.audit.DAO.Impl;
 
 import com.expriment.utils.audit.Hibernate.HibernateUtils;
 import com.expriment.utils.audit.DAO.BankDetailsDAO;
+import com.expriment.utils.audit.LoggerClass;
 import com.expriment.utils.audit.entity.BankDetails;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +25,7 @@ public class BankDetailsDAOImpl implements BankDetailsDAO {
             if (bankDetails != null) {
                 bankDetailsResponse= hibernateUtils.saveEntity(bankDetails);
             }else {
-                logger.info("BankDetails is Empty.");
+                LoggerClass.appLayerLogger.info("BankDetails is Empty.");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,7 +50,7 @@ public class BankDetailsDAOImpl implements BankDetailsDAO {
     public BankDetails getBankDetailsByAccountNumber(Integer accountNumber){
         BankDetails bankDetailsResponse =new BankDetails();
         try {
-            logger.debug("getAuditLogDataByLgId Started.");
+            LoggerClass.appLayerLogger.debug("getAuditLogDataByLgId Started.");
             String hql = "SELECT bank FROM BankDetails as bank WHERE accountNumber ="+accountNumber.toString();
 
             bankDetailsResponse= (BankDetails) hibernateUtils.loadEntitiesByHQL(hql);

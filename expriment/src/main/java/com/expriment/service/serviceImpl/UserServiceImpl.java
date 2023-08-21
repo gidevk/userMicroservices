@@ -3,6 +3,7 @@ package com.expriment.service.serviceImpl;
 import com.expriment.entity.UserEntity;
 import com.expriment.entity.vo.cIdString;
 import com.expriment.service.UserService;
+import com.expriment.utils.audit.LoggerClass;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
         for(int i=0; i<s.length(); i++){
             char ch= s.charAt(i);
-            logger.info(stack);
+            LoggerClass.appLayerLogger.info(stack);
             if(ch == ')' && !stack.empty() && stack.peek()=='('){
                 stack.pop();
             }else if(ch == '}' && !stack.empty() && stack.peek()=='{'){
@@ -113,7 +114,7 @@ public class UserServiceImpl implements UserService {
         }
         for(int i=0; i<s.length(); i++){
             char ch= s.charAt(i);
-            logger.info(list);
+            LoggerClass.appLayerLogger.info(list);
             if((ch == ')' || ch == '}' ||ch == ']') && !list.isEmpty()){
                 list1.add(ch);
                 if(list.contains('(') && ch == ')'){

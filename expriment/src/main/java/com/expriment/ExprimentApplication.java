@@ -1,10 +1,11 @@
 package com.expriment;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 
@@ -13,9 +14,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 
 @ComponentScan(basePackages = {"com.expriment"})
+@ServletComponentScan(basePackages ="com.expriment.utils")
 //@EntityScan("com.expriment")
 //@EnableJpaRepositories("com.expriment.utils.audit.DAO")
 @SpringBootApplication
+@EnableAspectJAutoProxy(proxyTargetClass=true)
 @EnableScheduling
 class ExprimentApplication extends SpringBootServletInitializer {
 

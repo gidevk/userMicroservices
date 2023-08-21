@@ -1,8 +1,10 @@
 package com.expriment.service.serviceImpl;
 
 //import com.expriment.DAO.Impl.UserDetailsJPA;
+import com.expriment.DAO.UserDetailsDao;
 import com.expriment.entity.UserDetails;
 import com.expriment.service.UserDetailsService;
+import com.expriment.utils.audit.LoggerClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 
 //    ObjectMapper objectMapper= new ObjectMapper();
 
+    @Autowired
+    UserDetailsDao userDetailsDao;
+
     EntityManager entityManager;
     public UserDetailsServiceImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -38,14 +43,15 @@ public class UserDetailsServiceImpl implements UserDetailsService{
     public UserDetails saveUserDetails(UserDetails userDetails){
         UserDetails user=null;
         try {
-            logger.info("SaveUserDetails Started.");
-            entityManager.persist(userDetails); // setting the userId..
-            userDetails.setCpId(userDetails.getCpId());
+            LoggerClass.appLayerLogger.info("SaveUserDetails Started.");
+//            entityManager.persist(userDetails); // setting the userId..
+//            userDetails.setCpId(userDetails.getCpId());
 //            user =userDetailsJPA.save(userDetails);
+            userDetailsDao.saveUserDetails(userDetails);
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
-            logger.info("SaveUserDetails Ended Successfully.");
+            LoggerClass.appLayerLogger.info("SaveUserDetails Ended Successfully.");
         }
        return user;
    }
@@ -54,7 +60,7 @@ public class UserDetailsServiceImpl implements UserDetailsService{
         UserDetails userEntity= null;
 //       AuditLogData auditLogData = new AuditLogData();
        try {
-           logger.info("GetUserDetails service Started.");
+           LoggerClass.appLayerLogger.info("GetUserDetails service Started.");
 
 
 //           Optional<UserDetails> optional = userDetailsJPA.findAll(cpId);
@@ -72,7 +78,7 @@ public class UserDetailsServiceImpl implements UserDetailsService{
        } catch (Exception e) {
            e.printStackTrace();
        } finally {
-           logger.info("Get User Details ended Successfully");
+           LoggerClass.appLayerLogger.info("Get User Details ended Successfully");
        }
        return userEntity;
    }

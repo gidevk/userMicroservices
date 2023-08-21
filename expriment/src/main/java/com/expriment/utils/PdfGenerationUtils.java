@@ -1,5 +1,6 @@
 package com.expriment.utils;
 
+import com.expriment.utils.audit.LoggerClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,7 @@ public class PdfGenerationUtils {
 		tmp.append(appId);
 		File tmpDir = new File(tmp.toString());
 		if (!tmpDir.exists()) {
-			logger.info("Directory Created: " + tmpDir.mkdir());
+			LoggerClass.appLayerLogger.info("Directory Created: " + tmpDir.mkdir());
 		}
 		return tmp.toString();
 	}

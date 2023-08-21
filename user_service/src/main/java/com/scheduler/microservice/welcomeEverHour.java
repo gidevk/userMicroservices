@@ -1,7 +1,6 @@
 package com.scheduler.microservice;
 
 import com.expriment.utils.audit.LoggerClass;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;

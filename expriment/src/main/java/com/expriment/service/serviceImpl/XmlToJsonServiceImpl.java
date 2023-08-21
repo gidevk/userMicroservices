@@ -7,6 +7,7 @@ import com.expriment.entity.DigilockerDetails;
 import com.expriment.entity.vo.NameMatchKarzaRequest;
 import com.expriment.entity.vo.NameMatchKarzaResponse;
 import com.expriment.service.XmlToJsonService;
+import com.expriment.utils.audit.LoggerClass;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -17,8 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 //import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
@@ -88,13 +87,13 @@ public  void main1(String[] args) {
            Object xmlObject = xmlMapper.readValue(xmlData, Object.class);
            jsonString = jsonMapper.writeValueAsString(xmlObject);
 
-          logger.info(jsonString);
+          LoggerClass.appLayerLogger.info(jsonString);
 
           /*eAadharData eAadhar = jsonMapper.readValue(jsonString, eAadharData.class);
-         logger.info("________________________________________________________________________________________________________________________");
-         logger.info(jsonMapper.writeValueAsString(eAadhar));
-         logger.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{["+eAadhar.getCertificateData());
-         */ logger.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{[");
+         LoggerClass.appLayerLogger.info("________________________________________________________________________________________________________________________");
+         LoggerClass.appLayerLogger.info(jsonMapper.writeValueAsString(eAadhar));
+         LoggerClass.appLayerLogger.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{["+eAadhar.getCertificateData());
+         */ LoggerClass.appLayerLogger.info("{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{{[");
 //           JSONObject json = new JSONObject(eAadhar.toString());
            JSONObject json = new JSONObject(jsonString);
            JSONObject certificateData = json.getJSONObject("CertificateData");
@@ -106,18 +105,18 @@ public  void main1(String[] args) {
            JSONObject locat = geometry.getJSONObject("location");
 */
 
-          logger.info("uid-->"+uidai.get("uid"));
-          logger.info("Name-->"+poi.get("name"));
-          logger.info("gender-->"+poi.get("gender"));
-          logger.info("dob-->"+poi.get("dob"));
-          logger.info("country-->"+poa.get("country"));
-          logger.info("state-->"+poa.get("state"));
-          logger.info("dist-->"+poa.get("dist"));
-          logger.info("house-->"+poa.get("house"));
-          logger.info("loc-->"+poa.get("loc"));
-          logger.info("pinCode-->"+poa.get("pc"));
-          logger.info("VilageTownCity-->"+poa.get("vtc"));
-          logger.info("VilageTownCity-->"+uidai.get("Pht"));
+          LoggerClass.appLayerLogger.info("uid-->"+uidai.get("uid"));
+          LoggerClass.appLayerLogger.info("Name-->"+poi.get("name"));
+          LoggerClass.appLayerLogger.info("gender-->"+poi.get("gender"));
+          LoggerClass.appLayerLogger.info("dob-->"+poi.get("dob"));
+          LoggerClass.appLayerLogger.info("country-->"+poa.get("country"));
+          LoggerClass.appLayerLogger.info("state-->"+poa.get("state"));
+          LoggerClass.appLayerLogger.info("dist-->"+poa.get("dist"));
+          LoggerClass.appLayerLogger.info("house-->"+poa.get("house"));
+          LoggerClass.appLayerLogger.info("loc-->"+poa.get("loc"));
+          LoggerClass.appLayerLogger.info("pinCode-->"+poa.get("pc"));
+          LoggerClass.appLayerLogger.info("VilageTownCity-->"+poa.get("vtc"));
+          LoggerClass.appLayerLogger.info("VilageTownCity-->"+uidai.get("Pht"));
            //"iterate onto level of location";
 
          /*  double lat = locat.getDouble("lat");
@@ -143,7 +142,7 @@ public  void main1(String[] args) {
            Object xmlObject = xmlMapper.readValue(xmlData, Object.class);
            jsonString = jsonMapper.writeValueAsString(xmlObject);
 
-          logger.info(jsonString);
+          LoggerClass.appLayerLogger.info(jsonString);
 
            JSONObject json = new JSONObject(jsonString);
            JSONObject certificateData = json.getJSONObject("CertificateData");
@@ -152,20 +151,20 @@ public  void main1(String[] args) {
            JSONObject poa = uidai.getJSONObject("Poa");
            JSONObject poi = uidai.getJSONObject("Poi");
 
-          logger.info("uid-->"+uidai.get("uid")+"Name-->"+poi.get("name")+"gender-->"+poi.get("gender")+"dob-->"+poi.get("dob")
+          LoggerClass.appLayerLogger.info("uid-->"+uidai.get("uid")+"Name-->"+poi.get("name")+"gender-->"+poi.get("gender")+"dob-->"+poi.get("dob")
           +"country-->"+poa.get("country")+"state-->"+poa.get("state")+"dist-->"+poa.get("dist")+"house-->"+poa.get("house")+
                   "loc-->"+poa.get("loc")+"pinCode-->"+poa.get("pc")+"VilageTownCity-->"+poa.get("vtc"));
-//          logger.info();
-//          logger.info();
-          logger.info("dob-->"+poi.get("dob"));
-          logger.info("country-->"+poa.get("country"));
-          logger.info("state-->"+poa.get("state"));
-          logger.info("dist-->"+poa.get("dist"));
-          logger.info("house-->"+poa.get("house"));
-          logger.info("loc-->"+poa.get("loc"));
-          logger.info("pinCode-->"+poa.get("pc"));
-          logger.info("VilageTownCity-->"+poa.get("vtc"));
-          logger.info("photograph {}",uidai.get("Pht"));
+//          LoggerClass.appLayerLogger.info();
+//          LoggerClass.appLayerLogger.info();
+          LoggerClass.appLayerLogger.info("dob-->"+poi.get("dob"));
+          LoggerClass.appLayerLogger.info("country-->"+poa.get("country"));
+          LoggerClass.appLayerLogger.info("state-->"+poa.get("state"));
+          LoggerClass.appLayerLogger.info("dist-->"+poa.get("dist"));
+          LoggerClass.appLayerLogger.info("house-->"+poa.get("house"));
+          LoggerClass.appLayerLogger.info("loc-->"+poa.get("loc"));
+          LoggerClass.appLayerLogger.info("pinCode-->"+poa.get("pc"));
+          LoggerClass.appLayerLogger.info("VilageTownCity-->"+poa.get("vtc"));
+          LoggerClass.appLayerLogger.info("photograph {}",uidai.get("Pht"));
 
 
            digilockerDetails.setLeadId(leadId++);
@@ -183,7 +182,7 @@ public  void main1(String[] args) {
            digilockerDetails.setCreatedDate(new Date());
 
            digilockerDetails =digilockerDetailsDAO.saveOrUpdate(digilockerDetails);
-            logger.info("digilocker {}",objectMapper.writeValueAsString(digilockerDetails) );
+            LoggerClass.appLayerLogger.info("digilocker {}",objectMapper.writeValueAsString(digilockerDetails) );
 
        } catch (Exception e) {
            e.printStackTrace();
@@ -191,7 +190,7 @@ public  void main1(String[] args) {
    }
    @Override
    public void dobMatch(long leadId){
-        logger.info("Inside checkingMachingDetails----->>>");
+        LoggerClass.appLayerLogger.info("Inside checkingMachingDetails----->>>");
        String matchFaild = null;
        boolean flag = true;
        StringBuilder matchFailedError = new StringBuilder();
@@ -217,27 +216,27 @@ public  void main1(String[] args) {
 
                    try {
 
-                      logger.info("CKYC date before format : " + dob);
+                      LoggerClass.appLayerLogger.info("CKYC date before format : " + dob);
                        Date ckycDate = new SimpleDateFormat("dd-MM-yyyy").parse(dob);
                        SimpleDateFormat form = new SimpleDateFormat("yyyy-MM-dd");
                        ckycDob = form.format(ckycDate);
 
-                      logger.info("CKYC date after format : {} " + ckycDob);
+                      LoggerClass.appLayerLogger.info("CKYC date after format : {} " + ckycDob);
 
                        Date offerModuledob = offerModule.getCustomerEnteredDob();
-                      logger.info("offer module date before format : " + offerModuledob);
+                      LoggerClass.appLayerLogger.info("offer module date before format : " + offerModuledob);
                        offerModuledob2 = form.format(offerModuledob);
-                      logger.info("offer module date after format : " + offerModuledob2);
+                      LoggerClass.appLayerLogger.info("offer module date after format : " + offerModuledob2);
                    } catch (Exception e) {
-                      logger.info("Exception while dob match failed .."+ e);
+                      LoggerClass.appLayerLogger.info("Exception while dob match failed .."+ e);
                        matchFailedError = matchFailedError.append(",DOB_MISMATCH");
 
                    }
 
-                  logger.info("ckycDob and dobofferModule : " + ckycDob + "====>" + offerModuledob2);
+                  LoggerClass.appLayerLogger.info("ckycDob and dobofferModule : " + ckycDob + "====>" + offerModuledob2);
 
                    if (!ckycDob.equals(offerModuledob2)) {
-                      logger.info("dob match failed");
+                      LoggerClass.appLayerLogger.info("dob match failed");
                        matchFailedError = matchFailedError.append(",DOB_MISMATCH");
                        //drop customer
                        flag = false;

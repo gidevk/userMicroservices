@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Profile;
  */
 
 @Configuration
-@Profile({ "application-project-url, "})
+@Profile({ "application-project-url,application-dev, application"})
 public class AppProps {
 
 	@Value("${location_to_upload_doc}")

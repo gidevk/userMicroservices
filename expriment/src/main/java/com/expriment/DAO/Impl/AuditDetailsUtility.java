@@ -3,6 +3,7 @@ package com.expriment.DAO.Impl;
 import com.expriment.entity.AuditDetails;
 import com.expriment.entity.vo.AuditDetailsPayload;
 import com.expriment.utils.audit.DAO.AuditDetailsDAO;
+import com.expriment.utils.audit.LoggerClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,12 +44,12 @@ public class AuditDetailsUtility {
 
 	public AuditDetails saveDetailsToFile(AuditDetailsPayload auditDetilsPayload){
 
-		logger.info("In saveDetailsToFile method-------->");
+		LoggerClass.appLayerLogger.info("In saveDetailsToFile method-------->");
 
 		AuditDetails auditDetails = new AuditDetails();
 
 		String path = appProps;
-		logger.info("Path : "+path);
+		LoggerClass.appLayerLogger.info("Path : "+path);
 
 		Date date = new Date();
 
@@ -64,7 +65,7 @@ public class AuditDetailsUtility {
 			.append("/").append(stamp).append("/");
 		}
 
-		logger.info("FullPath : "+fullPath);
+		LoggerClass.appLayerLogger.info("FullPath : "+fullPath);
 
 		File file1 = new File(fullPath.toString());
 

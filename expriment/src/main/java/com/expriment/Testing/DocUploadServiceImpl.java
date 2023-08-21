@@ -3,6 +3,7 @@ package com.expriment.Testing;
 import com.expriment.utils.ProjectConstants;
 import com.expriment.utils.audit.DAO.AuditLogDataDAO;
 import com.expriment.utils.audit.Hibernate.HibernateUtils;
+import com.expriment.utils.audit.LoggerClass;
 import com.expriment.utils.audit.entity.AuditLogData;
 import com.expriment.utils.audit.entity.vo.ErrorResponse;
 import com.expriment.utils.audit.entity.vo.RootResponse;
@@ -55,11 +56,11 @@ public class DocUploadServiceImpl  {
 		RootResponse rootResponse = new RootResponse();
 		// based on the tpye we can save in Db.
 		try {
-			logger.info("Inside saveDocForEmudra");
+			LoggerClass.appLayerLogger.info("Inside saveDocForEmudra");
 			if(emudraDocRequest != null && emudraDocRequest.getDoc() != null &&
 					emudraDocRequest.getDocType() != null && emudraDocRequest.getLeadId() != null){
 				String docType = emudraDocRequest.getDocType().toLowerCase();
-				logger.info("customer leadId {} docType is {}",emudraDocRequest.getLeadId(),docType);
+				LoggerClass.appLayerLogger.info("customer leadId {} docType is {}",emudraDocRequest.getLeadId(),docType);
 
 				switch (docType){
 					case "sl":		//sl Sanction Letter , tc-Terms&Conditions , la- Loan
@@ -80,12 +81,12 @@ public class DocUploadServiceImpl  {
 					sfdcTdlDocResponse.setUpdatedDate(new Date());
 				}
 
-//				rootResponse.setRetStatus(UtilityConstants.STATUS_CODE_PARAMS.SUCCESS);
+//				rootResponse.setRetStatus(ProjectConstants.STATUS_CODE_PARAMS.SUCCESS);
 
 			}else{
-				logger.info("some necessary field is missing..");
-//				rootResponse.setRetStatus(UtilityConstants.STATUS_CODE_PARAMS.FAILURE);
-//				rootResponse.setSysErrorCode(UtilityConstants.STATUS_CODE_PARAMS.SYS_ERROR_CODE);
+				LoggerClass.appLayerLogger.info("some necessary field is missing..");
+//				rootResponse.setRetStatus(ProjectConstants.STATUS_CODE_PARAMS.FAILURE);
+//				rootResponse.setSysErrorCode(ProjectConstants.STATUS_CODE_PARAMS.SYS_ERROR_CODE);
 				rootResponse.setSysErrorMessage("Some necessary field is missing like leadId, docType..");
 				return rootResponse;
 			}
@@ -96,7 +97,7 @@ public class DocUploadServiceImpl  {
 
 			if (sfdcTdlDocResponse != null && sfdcTdlDocResponse.getLeadId() != null) {
 //				sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse);
-				logger.info("Emudra Document is updated successfully for customer :"+sfdcTdlDocResponse.getLeadId());
+				LoggerClass.appLayerLogger.info("Emudra Document is updated successfully for customer :"+sfdcTdlDocResponse.getLeadId());
 
 			}
 		}
@@ -107,7 +108,7 @@ public class DocUploadServiceImpl  {
 		DocUploadPayload docUploadPayload = new DocUploadPayload();
 		RootResponse rootResponse = new RootResponse();
 		try {
-			logger.info("pushEmudraToDMS is started.");
+			LoggerClass.appLayerLogger.info("pushEmudraToDMS is started.");
 			CDIOfferModule offerModule = tclServiceManager.getCdiOfferModuleDataService().getOfferDataByLeadId(Long.valueOf(plLeadId));
 			*//*List<UploadDoc> uploadDoc=tclServiceManager.getUploadDocService().getUploadDocResByPlleadIdAndDocType(plLeadId, TCLConstants.CUSTOMER_KFS_GENERATION_DOC_TYPE);
 			if(!uploadDoc.isEmpty() && uploadDoc.get(0).getWebtopNo() !=null){
@@ -121,7 +122,7 @@ public class DocUploadServiceImpl  {
 			docUploadPayload.setBase64(docBase64Date);
 
 			docUploadService.uploadDocV2(docUploadPayload); // TODO: 3/6/2023  for pushing DMS.
-			logger.info("DMS pushed for Esigned document of customer leadId"+offerModule.getPlLeadId());
+			LoggerClass.appLayerLogger.info("DMS pushed for Esigned document of customer leadId"+offerModule.getPlLeadId());
 
 			// TODO: 3/9/2023  send email to customer.
 			*//*ObjectMapper objectMapper = new ObjectMapper();
@@ -136,17 +137,17 @@ public class DocUploadServiceImpl  {
 			*//*	KFSResponse response = kfsAppService.generateKFS(kfsRequestPayload, "CustomerKFS",offerModule);
 
 			try {
-				logger.info("customerKFS Response : " + objectMapper.writeValueAsString(response));
+				LoggerClass.appLayerLogger.info("customerKFS Response : " + objectMapper.writeValueAsString(response));
 			} catch (JsonProcessingException e) {
 				e.printStackTrace();
 			}*//*
 			*//*********************************************************************************************************************************//*
 			// Sending mail to customer
 			Thread thread = new Thread(() -> {
-				logger.info("Sending mail to customer : Stated");
+				LoggerClass.appLayerLogger.info("Sending mail to customer : Stated");
 				customerMailUtil.sendEmail(kfsAppServiceImpl.completePath, offerModule.getEmailAddress(),offerModule);
 
-				logger.info("Sending mail to customer : Ended");
+				LoggerClass.appLayerLogger.info("Sending mail to customer : Ended");
 			});
 			thread.start();
 		} catch (Exception e) {
@@ -246,14 +247,14 @@ public class DocUploadServiceImpl  {
 		String url = "digio.tatacapital.com:8080/doc_signer/signdoc";//"http://digio.tatacapital.com:8080/doc_signer/signdo";
 
 		try {
-			logger.info("Emudra call for leadId {}",leadId);
+			LoggerClass.appLayerLogger.info("Emudra call for leadId {}",leadId);
 
 			MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 			headers.add("Content-Type", "application/json");
 
 			HttpEntity<?> httpEntity = new HttpEntity<>(emudraRequest, headers);
 //			String createOppUrl = tclServicesProps.getCreateOpportunityUrl();
-//			logger.info("createOppUrl: " + createOppUrl);
+//			LoggerClass.appLayerLogger.info("createOppUrl: " + createOppUrl);
 
 			esignedDoc = restTemplate.postForObject(url, httpEntity, String.class);
 
@@ -270,10 +271,10 @@ public class DocUploadServiceImpl  {
 
 			if (sfdcTdlDocResponse.getLeadId() !=null) {
 //				sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse);
-				logger.info("EmudraDoc is updated successfully for customer :"+sfdcTdlDocResponse.getLeadId());
+				LoggerClass.appLayerLogger.info("EmudraDoc is updated successfully for customer :"+sfdcTdlDocResponse.getLeadId());
 
 			}
-			logger.info("Document is saved.");
+			LoggerClass.appLayerLogger.info("Document is saved.");
 		}
 
 		return esignedDoc;
@@ -361,7 +362,7 @@ public class DocUploadServiceImpl  {
 			apiAuditLog.setRequest(emudraRequest.toString());
 			apiAuditLog.setCreatedDate(new Date());
 
-			logger.info("Emudra call for leadId {}",leadId);
+			LoggerClass.appLayerLogger.info("Emudra call for leadId {}",leadId);
 
 			MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 			headers.add("Content-Type", "application/json");
@@ -386,14 +387,14 @@ public class DocUploadServiceImpl  {
 
 			if (sfdcTdlDocResponse.getLeadId() !=null) {
 				sfdcTdlDocDAO.saveOrUpdateSfdcTdlDoc(sfdcTdlDocResponse);
-				logger.info("EmudraDoc is updated successfully for customer :"+sfdcTdlDocResponse.getLeadId());
+				LoggerClass.appLayerLogger.info("EmudraDoc is updated successfully for customer :"+sfdcTdlDocResponse.getLeadId());
 			}
 
 			if(apiAuditLog.getRequest() !=null && apiAuditLog.getResponse() !=null){
 				auditLogDataDAO.saveAuditLogs(apiAuditLog);
-				logger.info("Saved Emudra response Successfully for leadId {}",apiAuditLog.getAuditLogId());
+				LoggerClass.appLayerLogger.info("Saved Emudra response Successfully for leadId {}",apiAuditLog.getAuditLogId());
 			}
-			logger.info("Document is saved.");
+			LoggerClass.appLayerLogger.info("Document is saved.");
 		}
 
 		return esignedDoc;

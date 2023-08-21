@@ -719,7 +719,7 @@ public class ProjectUtils  {//AmcDAO
         String tmp = System.getProperty("java.io.tmpdir");
         File tmpDir = new File(tmp);
         if (!tmpDir.exists()) {
-            logger.info("Directory Created: " + tmpDir.mkdir());
+            LoggerClass.appLayerLogger.info("Directory Created: " + tmpDir.mkdir());
         }
         return tmp;
     }
@@ -1074,7 +1074,7 @@ public class ProjectUtils  {//AmcDAO
         cvlpanInquiryPayload.setMobileNumber(registrationPayload.getMobileNumber());
         cvlpanInquiryPayload.setTatId(registrationPayload.getTatId());
         cvlpanInquiryPayload.setPanNo(registrationPayload.getPan());
-        logger.info("CVL Pan Inquiry request details:{} {}", cvlpanInquiryPayload.getPanNo(), cvlpanInquiryPayload.getTatId());
+        LoggerClass.appLayerLogger.info("CVL Pan Inquiry request details:{} {}", cvlpanInquiryPayload.getPanNo(), cvlpanInquiryPayload.getTatId());
         return cvlpanInquiry.cvlPANInquiry(cvlpanInquiryPayload);
     }
 
@@ -1272,7 +1272,7 @@ public class ProjectUtils  {//AmcDAO
 
             if (otpGenCounterLkpVal != null && otpGenCoolingPeriod != null &&
                     otpCounter >= otpGenCounterLkpVal & diffInMin <= otpGenCoolingPeriod) {
-                logger.info("Exceeded the number of tries");
+                LoggerClass.appLayerLogger.info("Exceeded the number of tries");
                 return false;
             }
             if (otpGenCoolingPeriod != null && diffInMin > otpGenCoolingPeriod) {
@@ -1301,7 +1301,7 @@ public class ProjectUtils  {//AmcDAO
 
         if (otpValCounterLkpVal != null && otpValCoolingPeriod != null &&
                 otpCounter >= otpValCounterLkpVal & diffInMin <= otpValCoolingPeriod) {
-            logger.info("Exceeded the number of tries");
+            LoggerClass.appLayerLogger.info("Exceeded the number of tries");
             return false;
         }
         if (otpValCoolingPeriod != null && diffInMin > otpValCoolingPeriod) {
@@ -1326,8 +1326,8 @@ public class ProjectUtils  {//AmcDAO
     }
 
     public ResponseEntity<?> updateElasticPennyDropStatus(String cpId, String indexName) {
-        logger.info("Request received to perform the updateElasticPennyDropStatus is : cpId : {}", cpId);
-        logger.info("Request received to perform the updateElasticPennyDropStatus is : indexName : {}", indexName);
+        LoggerClass.appLayerLogger.info("Request received to perform the updateElasticPennyDropStatus is : cpId : {}", cpId);
+        LoggerClass.appLayerLogger.info("Request received to perform the updateElasticPennyDropStatus is : indexName : {}", indexName);
         ErrorResponseVO errorResponse = new ErrorResponseVO();
         BankDetailsVO bankDetailsVO = new BankDetailsVO();
         List<CpBankDtls> cpBankDtlsList;
@@ -1376,11 +1376,11 @@ public class ProjectUtils  {//AmcDAO
             HttpEntity<String> httpRequestEntity = new HttpEntity<>(bankDetailsJson, headers);
             String url = UriComponentsBuilder.fromHttpUrl(getHomePageUrl(null, serviceId) + updateElasticPennyDropStatusUrl)
                     .toUriString();
-            logger.info("URL " + url);
+            LoggerClass.appLayerLogger.info("URL " + url);
             try {
-                logger.info("Started - External call");
+                LoggerClass.appLayerLogger.info("Started - External call");
                 responseEntity = restTemplate.postForEntity(url, httpRequestEntity, String.class);
-                logger.info("Ended - External call");
+                LoggerClass.appLayerLogger.info("Ended - External call");
                 if (responseEntity != null) {
                     bankDetailsVO.setStatus(SUCCESS);
                     bankDetailsVO.setDescription(SUCCESS);
@@ -1405,7 +1405,7 @@ public class ProjectUtils  {//AmcDAO
     public String getHomePageUrl(RequestContext context, String serviceId) {
 
         try {
-            logger.info("getHomePageUrl() RequestContext :: {}, serviceId :: {}", context, serviceId);
+            LoggerClass.appLayerLogger.info("getHomePageUrl() RequestContext :: {}, serviceId :: {}", context, serviceId);
             if (serviceId != null) {
                 DiscoveryEnabledServer instance = (DiscoveryEnabledServer) new Mirror().on(loadBalancer.choose(serviceId)).get().field(DLP_SERVER);
                 return instance.getInstanceInfo().getHomePageUrl();
