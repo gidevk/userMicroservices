@@ -35,7 +35,7 @@ public class UserController {
     @Autowired
     XmlToJsonService xmlToJsonService;
 
- @GetMapping("/{userId}")
+    @GetMapping("/{userId}")
     public UserEntity getUser(@PathVariable("userId") Long userId){
 //        return userService.getUser(userId);
      return null;
