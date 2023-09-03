@@ -35,11 +35,11 @@ public class OpenMandateController {
 //        return new ResponseEntity<>(openMandateService.getBatchId(), HttpStatus.OK);
 //    }
 
-//    @PostMapping("/openmandate")
-//    public ResponseEntity<?> OpenMandateAPI(@RequestBody MandatePayload request){
-//        return new ResponseEntity<>(openMandateService.OpenMandate(request), HttpStatus.OK);
-//    }
-
+  /*  @PostMapping("/openmandate")
+    public ResponseEntity<?> OpenMandateAPI(@RequestBody String request){
+        return new ResponseEntity<>(openMandateService.OpenMandate(request), HttpStatus.OK);
+    }
+*/
     @PostMapping("/openNachApis")
     public ResponseEntity<?> allopenmandate(@RequestBody OpenMadateReq request){
         return new ResponseEntity<>(openMandateService.OpenMandeteOperation(request.getEnquiryRequest(),request.getLeadId()), HttpStatus.OK);

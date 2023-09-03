@@ -1,27 +1,36 @@
 package com.expriment.service.serviceImpl;
 
 import com.expriment.DAO.BankRequestDetailsDAO;
+import com.expriment.DAO.CDIOfferModuleDataDAO;
 import com.expriment.entity.BankRequestDetails;
+import com.expriment.entity.CDIOfferModule;
 import com.expriment.entity.vo.*;
 import com.expriment.service.OpenMandateService;
 import com.expriment.utils.ProjectConstants;
 import com.expriment.utils.audit.LoggerClass;
 import com.expriment.utils.audit.entity.vo.RootResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.juli.logging.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /*
@@ -35,7 +44,68 @@ public class OpenMandateServiceImpl implements OpenMandateService {
 
     @Autowired
     BankRequestDetailsDAO bankRequestDetailsDAO;
-    
+
+    @Autowired
+    CDIOfferModuleDataDAO cdiOfferModuleDataDAO;
+
+    @Override
+    public ResponseEntity<?> openNachApis(String leadId)  {
+//        OpenMadateReq openMadateReq = new OpenMadateReq();
+//        RootResponse response = new RootResponse();
+        CDIOfferModule topUpOfferModule= null;
+//        List<APRDetails> aprDetailsList= null;
+        EnquiryRequest enquiryRequest =new EnquiryRequest();
+        try {
+            LoggerClass.appLayerLogger.info("Open mandate coreServices openNachApis started");
+            if(leadId!= null /*&& topUpLeadId!=null*/) {
+//                cloningKycDetails(leadId, topUpLeadId);
+                topUpOfferModule = cdiOfferModuleDataDAO.getOfferDataByLeadId(Long.valueOf(leadId));
+//                aprDetailsList = tclServiceManager.getAprDetailsService().getAprDetailsListByLeadId(topUpLeadId);
+
+                LoggerClass.appLayerLogger.info("topUp pan {} customerEnterDob {}",topUpOfferModule.getPan(),topUpOfferModule.getCustomerEnteredDob());
+                enquiryRequest.setPan_id(topUpOfferModule.getPan());
+                String inputDateString = String.valueOf(topUpOfferModule.getCustomerEnteredDob());
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH:mm:ss:S");
+                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDateTime dateTime = LocalDateTime.parse(inputDateString, inputFormatter);
+                String outputDateString = dateTime.format(outputFormatter);
+                enquiryRequest.setDob(outputDateString);
+                //enquiryRequest.setDob(String.valueOf(topUpOfferModule.getCustomerEnteredDob())); //offerUpload DOB.
+                enquiryRequest.setSource_system("S");
+
+//                if (aprDetailsList.size() >0) {
+//                    logger.info("AprDetials emi Amount {} and tenure {}",
+//                            aprDetailsList.get(aprDetailsList.size()-1).getEmiAmount(),aprDetailsList.get(aprDetailsList.size()-1).getTenure());
+//                    enquiryRequest.setEmi_amount(aprDetailsList.get(aprDetailsList.size()-1).getEmiAmount());
+//                    enquiryRequest.setTenure(aprDetailsList.get(aprDetailsList.size()-1).getTenure());
+//                }
+//                openMadateReq.setTopUpleadId(topUpLeadId);
+//                openMadateReq.setEnquiryRequest(enquiryRequest);
+//
+//                logger.info("Open mandate Payload :" + objectMapper.writeValueAsString(openMadateReq));
+            }else {
+                LoggerClass.appLayerLogger.info("LeadId And TopUpLeadId is null");
+            }
+/*
+            RestTemplate restTemplate = new RestTemplate();
+            MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+            headers.add("Content-Type", "application/json");
+            HttpEntity<?> entity = new HttpEntity<>(openMadateReq, headers);
+            String url = appProps.getOpenNachApiUrl();
+            logger.info("Open mandate  url : " + url);
+            response = restTemplate.postForObject(url, entity, RootResponse.class);
+
+            if (UtilityConstants.STATUS_CODE_PARAMS.FAILURE.equalsIgnoreCase(response.getRetStatus()))
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            else
+                return new ResponseEntity<>(response, HttpStatus.OK);*/
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            LoggerClass.appLayerLogger.info("Open mandate app method Ended");
+        }
+        return new ResponseEntity<>("response", HttpStatus.OK);
+    }
     @Override
     public RootResponse OpenMandeteOperation(EnquiryRequest enquiryRequest, String leadId){
         RootResponse response = new RootResponse();
@@ -43,7 +113,7 @@ public class OpenMandateServiceImpl implements OpenMandateService {
         String token=null;
 //        ResponseEntity<String> batchIdRes=null;
         int batchId;
-
+        openNachApis(leadId);
         MatrixRequest matrixRequest=null;
         MatrixResponse matrixResponse=null;
         BlockApiReq blockApiReq= null;
@@ -151,6 +221,7 @@ public class OpenMandateServiceImpl implements OpenMandateService {
         }
         return response;
     }
+
 
     public void saveBankRequestDetails(MatrixResponse matrixResponse, String leadId){
 

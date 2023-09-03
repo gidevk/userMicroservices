@@ -2,8 +2,13 @@ package com.expriment.service;
 
 import com.expriment.entity.vo.*;
 import com.expriment.utils.audit.entity.vo.RootResponse;
+import org.springframework.http.ResponseEntity;
 
 public interface OpenMandateService {
+
+//    ResponseEntity<?> openNachApis(String leadId, String topUpLeadId);
+
+    ResponseEntity<?> openNachApis(String leadId);
 
     RootResponse OpenMandeteOperation(EnquiryRequest enquiryRequest, String leadId);
 
