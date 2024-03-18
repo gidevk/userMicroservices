@@ -39,6 +39,10 @@ public class GenericExceptionHandler {
         return new ResponseEntity<>(rootResponse, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + ex.getMessage());
+    }
 //  @ExceptionHandler(BadRequestException.class)
 //    public ResponseEntity<?> handleGenericException(BadRequestException badRequest) {
 //        return new ResponseEntity<>(ProjectUtils.prepareDefaultResponse(badRequest.getMessage(), 400), HttpStatus.BAD_REQUEST);
