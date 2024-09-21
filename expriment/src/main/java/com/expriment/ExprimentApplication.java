@@ -1,5 +1,6 @@
 package com.expriment;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
@@ -15,7 +16,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 //@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
 
 @ComponentScan(basePackages = {"com.expriment"})
-@ServletComponentScan(basePackages ="com.expriment.utils")
+//@ServletComponentScan(basePackages ="com.expriment.utils")
 //@EntityScan("com.expriment")
 //@EnableJpaRepositories("com.expriment.utils.audit.DAO")
 @SpringBootApplication

@@ -5,7 +5,6 @@ import com.expriment.entity.vo.CKYCStatusResponse;
 import com.expriment.entity.vo.CheckDigilockerStatusRequest;
 import com.expriment.entity.vo.CheckDigilockerStatusResponse;
 import com.expriment.utils.AppProps;
-import com.expriment.utils.audit.LoggerClass;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,29 +38,29 @@ public class DigilockerController {
 	@RequestMapping(value = "v0.1/digiProcess", method = {RequestMethod.POST,RequestMethod.GET})
 	public ModelAndView digilockerProcess(HttpServletRequest httpServletRequest) {
 		try {
-			LoggerClass.appLayerLogger.info("digilockerProcess UI Process");
+			logger.info("digilockerProcess UI Process");
 			ObjectMapper mapper = new ObjectMapper();
 			String code = httpServletRequest.getParameter("code");
 			String state = httpServletRequest.getParameter("state");
 			String hmac = httpServletRequest.getParameter("hmac");
 			String error = httpServletRequest.getParameter("error");
 			String error_description = httpServletRequest.getParameter("error_description");
-			LoggerClass.appLayerLogger.info("Code : " + code + ", State : " + state + ", Hmac : " + hmac + ", Error : " + error + ", Error_Description : " + error_description);
+			logger.info("Code : " + code + ", State : " + state + ", Hmac : " + hmac + ", Error : " + error + ", Error_Description : " + error_description);
 		/*String ckycCallbackUrl = appProps.getCdPlcKycDetailsCallbackUrl()+"?leadId="+state+"&customerHash="
 				+hmac;*/
 			if (error != null && !error.isEmpty()) {
-				LoggerClass.appLayerLogger.info("Error is not empty/null");
+				logger.info("Error is not empty/null");
 				CKYCRootPayload ckycRootPayload = new CKYCRootPayload();
 				ckycRootPayload.setAppId(state);
 				MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 				headers.add("Content-Type", "application/json");
 				HttpEntity<CKYCRootPayload> httpEntity = new HttpEntity<>(ckycRootPayload, headers);
 				String url = appProps.getTclPlDelegatorCkycDecisionUrl();
-				LoggerClass.appLayerLogger.info("CKYC Decision URL : " + url);
+				logger.info("CKYC Decision URL : " + url);
 
 				RestTemplate restTemplate = new RestTemplate();
 				CKYCStatusResponse response = restTemplate.postForObject(url, httpEntity, CKYCStatusResponse.class);
-				LoggerClass.appLayerLogger.info("CKYC Decision Response :" + mapper.writeValueAsString(response));
+				logger.info("CKYC Decision Response :" + mapper.writeValueAsString(response));
 				if (response.getcKycDecision()) {
 					return new ModelAndView("redirect:" + response.getUrl() + "?leadId=" + state + "&customerHash=" + response.getCustomerHash());
 				} else {
@@ -70,7 +69,7 @@ public class DigilockerController {
 			} else {
 				Thread thread = new Thread(() -> {
 					String url = appProps.getTclPlDelegatorAuthTokenUrl() + "?code=" + code;
-					LoggerClass.appLayerLogger.info("Authorization Token Generation Url : " + url);
+					logger.info("Authorization Token Generation Url : " + url);
 					RestTemplate restTemplate = new RestTemplate();
 					try {
 						restTemplate.getForObject(url, Void.class);
@@ -95,16 +94,16 @@ public class DigilockerController {
 		CheckDigilockerStatusRequest checkDigilockerStatusRequest = new CheckDigilockerStatusRequest();
 		CheckDigilockerStatusResponse response = new CheckDigilockerStatusResponse();
 		try {
-			LoggerClass.appLayerLogger.info("checkStatus() UI Process started");
+			logger.info("checkStatus() UI Process started");
 			ObjectMapper mapper = new ObjectMapper();
 			String leadId = httpServletRequest.getParameter("leadId");
-			LoggerClass.appLayerLogger.info("Lead Id : " + leadId);
+			logger.info("Lead Id : " + leadId);
 			checkDigilockerStatusRequest.setLeadId(leadId);
 			MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 			headers.add("Content-Type", "application/json");
 			HttpEntity<CheckDigilockerStatusRequest> httpEntity = new HttpEntity(checkDigilockerStatusRequest, headers);
 			String url = appProps.getTclPlDelegatorCheckStatusUrl();
-			LoggerClass.appLayerLogger.info("Core DLP DigiLocker Check Status API details Url : " + url);
+			logger.info("Core DLP DigiLocker Check Status API details Url : " + url);
 
 			RestTemplate restTemplate = new RestTemplate();
 			response = restTemplate.postForObject(url, httpEntity, CheckDigilockerStatusResponse.class);

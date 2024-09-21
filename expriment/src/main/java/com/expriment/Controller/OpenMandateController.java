@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/openMandate")
 public class OpenMandateController {
 
-    @Autowired
+   /* @Autowired
     OpenMandateService openMandateService;
-
+*/
 //    @PostMapping("/enquiry")
 //    public ResponseEntity<?> enquiryApi(@RequestBody EnquiryRequest request){
 //        return new ResponseEntity<>(openMandateService.enquiryApi(request), HttpStatus.OK);
@@ -40,8 +40,8 @@ public class OpenMandateController {
         return new ResponseEntity<>(openMandateService.OpenMandate(request), HttpStatus.OK);
     }
 */
-    @PostMapping("/openNachApis")
+   /* @PostMapping("/openNachApis")
     public ResponseEntity<?> allopenmandate(@RequestBody OpenMadateReq request){
         return new ResponseEntity<>(openMandateService.OpenMandeteOperation(request.getEnquiryRequest(),request.getLeadId()), HttpStatus.OK);
-    }
+    }*/
 }

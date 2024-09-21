@@ -6,7 +6,6 @@ import com.expriment.entity.vo.NameMatchKarzaRequest;
 import com.expriment.entity.vo.NameMatchKarzaResponse;
 import com.expriment.service.NameMatchingService;
 import com.expriment.utils.ProjectConstants;
-import com.expriment.utils.audit.LoggerClass;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
@@ -42,10 +41,10 @@ public class NameMatchingServiceImpl implements NameMatchingService {
 //    public Map<String, Boolean> nameMatchingApi(String okycname, String customerName, String leadId, CDIOfferModule offerModule) {
     public Map<String, Boolean> nameMatchingApi(NameMatchKarzaRequest request) {
 
-      /*  LoggerClass.appLayerLogger.info("Customer name from AdharOkyc : " + request.getName());
+      /*  logger.info("Customer name from AdharOkyc : " + request.getName());
         okycname = okycname != null?okycname.toString().trim().replaceAll("  ", " "):null;
 
-        LoggerClass.appLayerLogger.info("Customer name from CDIOfferModule : " + customerName);
+        logger.info("Customer name from CDIOfferModule : " + customerName);
         customerName = customerName != null?customerName.toString().trim().replaceAll("  ", " "):null;
 
         try {
@@ -67,7 +66,7 @@ public class NameMatchingServiceImpl implements NameMatchingService {
         nameMatchingPayload.put("leadId", leadId);
         */
         Map<String, Boolean> customerNameMatchResponse = matchingInputsWithEvokeAPI(request);
-        LoggerClass.appLayerLogger.info("customerNameMatchResponse :"+ customerNameMatchResponse);
+        logger.info("customerNameMatchResponse :"+ customerNameMatchResponse);
         return customerNameMatchResponse;
     }
 
@@ -99,25 +98,25 @@ public class NameMatchingServiceImpl implements NameMatchingService {
                     if(plsFloatScore >= baseFloatScore && lvnFloatScore >= baseFloatScore){*/
                 response = NameMatchByKarza(request);
                 try {
-                    LoggerClass.appLayerLogger.info("checkingMachingDetails request is {} response is {}",objectMapper.writeValueAsString(request),objectMapper.writeValueAsString(response));
+                    logger.info("checkingMachingDetails request is {} response is {}",objectMapper.writeValueAsString(request),objectMapper.writeValueAsString(response));
                 } catch (JsonProcessingException e) {
                     e.printStackTrace();
                 }
                 Double plsFloatScore= response.getResponse().getScore();
-                LoggerClass.appLayerLogger.info("Base Float Result :"+ baseFloatScore);
-                LoggerClass.appLayerLogger.info("Pls Float Result :"+ plsFloatScore);
+                logger.info("Base Float Result :"+ baseFloatScore);
+                logger.info("Pls Float Result :"+ plsFloatScore);
 
                 if(plsFloatScore != null){
                     if(plsFloatScore >= baseFloatScore){
-                        LoggerClass.appLayerLogger.info("Inside name match if block");
+                        logger.info("Inside name match if block");
                         matchResponse.put("proceed", true);
-                        LoggerClass.appLayerLogger.info("PairLettersSimilarity Name match if block res------->"+plsFloatScore);
-//                        LoggerClass.appLayerLogger.info("Levenshtein Name match if block res------->"+lvnFloatScore);
+                        logger.info("PairLettersSimilarity Name match if block res------->"+plsFloatScore);
+//                        logger.info("Levenshtein Name match if block res------->"+lvnFloatScore);
                     }else{
-                        LoggerClass.appLayerLogger.info("Inside name match else block");
+                        logger.info("Inside name match else block");
                         matchResponse.put("proceed", false);
-                        LoggerClass.appLayerLogger.info("PairLettersSimilarity Name match else block res------->"+plsFloatScore);
-//                        LoggerClass.appLayerLogger.info("Levenshtein Name match else block res------->"+lvnFloatScore);
+                        logger.info("PairLettersSimilarity Name match else block res------->"+plsFloatScore);
+//                        logger.info("Levenshtein Name match else block res------->"+lvnFloatScore);
                     }
                 }else{
                     matchResponse = new HashMap<>();
@@ -129,7 +128,7 @@ public class NameMatchingServiceImpl implements NameMatchingService {
             }
         }
         if(applicationStatus!=null && response.getRetStatus().equalsIgnoreCase(ProjectConstants.SUCCESS)) {
-            LoggerClass.appLayerLogger.info("saving score in Application table for leadId {}",request.getPlLeadId());
+            logger.info("saving score in Application table for leadId {}",request.getPlLeadId());
             applicationStatus.setCkycNameMatchScore(response.getResponse().getScore());
 //            tclServiceManager.getApplicationStatusService().saveOrUpdateApplicationStatus(applicationStatus);
         }
@@ -141,7 +140,7 @@ public class NameMatchingServiceImpl implements NameMatchingService {
             String swap = sourceStr; sourceStr = targetStr; targetStr = swap;
         }
         int bigLen = sourceStr.length();
-        LoggerClass.appLayerLogger.info("bigLen -> "+ bigLen);
+        logger.info("bigLen -> "+ bigLen);
         if (bigLen == 0) { return 0.0; /* both strings are zero length */ }
         return (bigLen - computeEditDistance(sourceStr, targetStr)) / (double) bigLen;
     }
@@ -149,7 +148,7 @@ public class NameMatchingServiceImpl implements NameMatchingService {
     public  int computeEditDistance(String sourceStr, String targetStr) {
         sourceStr = sourceStr.toLowerCase();
         targetStr = targetStr.toLowerCase();
-        LoggerClass.appLayerLogger.info("sourceStr -> "+ sourceStr +" targetStr ->" + targetStr);
+        logger.info("sourceStr -> "+ sourceStr +" targetStr ->" + targetStr);
         int[] costs = new int[targetStr.length() + 1];
         for (int i = 0; i <= sourceStr.length(); i++) {
             int lastValue = i;
@@ -189,7 +188,7 @@ public class NameMatchingServiceImpl implements NameMatchingService {
                 for (int j = 0; j < pairs2.size(); j++) {
                     Object pair2 = pairs2.get(j);
                     if (pair1.equals(pair2)) {
-                        LoggerClass.appLayerLogger.info("ComaprePair -> ", pair1);
+                        logger.info("ComaprePair -> ", pair1);
                         intersection++;
                         pairs2.remove(j);
                         break;
@@ -403,22 +402,22 @@ public class NameMatchingServiceImpl implements NameMatchingService {
             final int port = appCommonProps.getProxyPort();
             Boolean enabledProxy = appCommonProps.getEnableProxy();
 
-            LoggerClass.appLayerLogger.info("Enabled proxy is set to {}",enabledProxy);*/
-            LoggerClass.appLayerLogger.info("NameMatchKarzaRequest payload {}",objectMapper.writeValueAsString(request));
+            logger.info("Enabled proxy is set to {}",enabledProxy);*/
+            logger.info("NameMatchKarzaRequest payload {}",objectMapper.writeValueAsString(request));
 
-            LoggerClass.appLayerLogger.info("karza api URL {}",karzaURL);
+            logger.info("karza api URL {}",karzaURL);
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 
             headers.set("Content-Type", "application/json");
             headers.add("Authorization", "Basic MTNlMzkxNzY6am9jYXRhdWF0");
             headers.add("ConversationID", conversationId);
             headers.add("SourceName", "Jocata");
-            LoggerClass.appLayerLogger.info("headers: "+headers);
+            logger.info("headers: "+headers);
 
             HttpEntity<?> httpEntity = new HttpEntity<>(request, headers);
 
            response= restTemplate.postForObject(karzaURL, httpEntity, NameMatchKarzaResponse.class);
-           LoggerClass.appLayerLogger.info("NameMatchKarzaResponse payload {}",objectMapper.writeValueAsString(response));
+           logger.info("NameMatchKarzaResponse payload {}",objectMapper.writeValueAsString(response));
             saveAuditDetails(request,response,"NameMatchScore",karzaURL,conversationId);
 
         } catch (Exception e) {
@@ -439,7 +438,7 @@ public class NameMatchingServiceImpl implements NameMatchingService {
         auditDetails.setResponseTime(new Date());
         auditDetails.setRequestTime(new Date());
         try {
-            LoggerClass.appLayerLogger.info("saveAuditDetails request payload {} /n response palyload {}", objMapper.writeValueAsString(requestPayload), objMapper.writeValueAsString(response));
+            logger.info("saveAuditDetails request payload {} /n response palyload {}", objMapper.writeValueAsString(requestPayload), objMapper.writeValueAsString(response));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -448,7 +447,7 @@ public class NameMatchingServiceImpl implements NameMatchingService {
         fullPath.append(File.separator).append(requestPayload.getPlLeadId()).append(File.separator).append(apiName)
                 .append(File.separator);
 
-        LoggerClass.appLayerLogger.info("full path->>" + fullPath);
+        logger.info("full path->>" + fullPath);
 
         File fileDir = new File(fullPath.toString());
 

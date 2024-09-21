@@ -1,3 +1,4 @@
+/*
 package com.expriment.service.serviceImpl;
 
 import com.expriment.DAO.BankRequestDetailsDAO;
@@ -11,6 +12,7 @@ import com.expriment.utils.audit.LoggerClass;
 import com.expriment.utils.audit.entity.vo.RootResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import connectjar.org.apache.http.HttpHost;
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -26,16 +28,18 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import sun.net.www.http.HttpClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
+*/
 /*
  * @author Indradev.kuamr
- */
+ *//*
+
 @Service
 public class OpenMandateServiceImpl implements OpenMandateService {
 
@@ -57,7 +61,9 @@ public class OpenMandateServiceImpl implements OpenMandateService {
         EnquiryRequest enquiryRequest =new EnquiryRequest();
         try {
             LoggerClass.appLayerLogger.info("Open mandate coreServices openNachApis started");
-            if(leadId!= null /*&& topUpLeadId!=null*/) {
+            if(leadId!= null */
+/*&& topUpLeadId!=null*//*
+) {
 //                cloningKycDetails(leadId, topUpLeadId);
                 topUpOfferModule = cdiOfferModuleDataDAO.getOfferDataByLeadId(Long.valueOf(leadId));
 //                aprDetailsList = tclServiceManager.getAprDetailsService().getAprDetailsListByLeadId(topUpLeadId);
@@ -86,6 +92,7 @@ public class OpenMandateServiceImpl implements OpenMandateService {
             }else {
                 LoggerClass.appLayerLogger.info("LeadId And TopUpLeadId is null");
             }
+*/
 /*
             RestTemplate restTemplate = new RestTemplate();
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
@@ -98,7 +105,8 @@ public class OpenMandateServiceImpl implements OpenMandateService {
             if (UtilityConstants.STATUS_CODE_PARAMS.FAILURE.equalsIgnoreCase(response.getRetStatus()))
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             else
-                return new ResponseEntity<>(response, HttpStatus.OK);*/
+                return new ResponseEntity<>(response, HttpStatus.OK);*//*
+
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
@@ -120,7 +128,8 @@ public class OpenMandateServiceImpl implements OpenMandateService {
         BlockApiRes blockApiRes = null;
 
         try {
-          /*  call enquiry
+          */
+/*  call enquiry
 
             if enquiry succees
             token
@@ -133,7 +142,8 @@ public class OpenMandateServiceImpl implements OpenMandateService {
             clone bankDetails
 
             if matrix succees
-            call block api*/
+            call block api*//*
+
 
             response.setRetStatus("Success");
             response.setLeadId(enquiryRequest.getPan_id());
@@ -410,10 +420,12 @@ public class OpenMandateServiceImpl implements OpenMandateService {
             AuditDetailsPayload auditDetailsPayload= new AuditDetailsPayload();
             auditDetailsPayload.setApiName("EMANDATE");
             auditDetailsPayload.setConversationId(String.valueOf(new Date().getTime()));
-			/*auditDetailsPayload.setAppId(mandatePayload.getAppId());
+			*/
+/*auditDetailsPayload.setAppId(mandatePayload.getAppId());
 			auditDetailsPayload.setMobileNumber(mandatePayload.getMobileNumber());
 			auditDetailsPayload.setAppLeadId(mandatePayload.getAppLeadId());
-			*/
+			*//*
+
 
             jsonObj.put("user_id","JOCATA_HL");// impsAuthDetails.getUserId());
             jsonObj.put("key", "rzNtQQTd5Gl0HqAn8dfIvg==" );//impsAuthDetails.getKey());
@@ -453,3 +465,4 @@ public class OpenMandateServiceImpl implements OpenMandateService {
     }
 
 }
+*/

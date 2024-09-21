@@ -888,6 +888,61 @@ public class EmudraServiceImpl implements EmudraService {
 
            if(!uploadDoc.isEmpty()  && base64KfsDoc != null){
                kfsAvailable = true;
+               logger.info("kfsAvailable {} for LeadId {}",kfsAvailable , leadId);
+           }
+
+           if(!ObjectUtils.isEmpty(sfdcTdlDocResponse) && sfdcTdlDocResponse.getSfdcDoc() != null && !sfdcTdlDocResponse.getSfdcDoc().isEmpty()
+                   && sfdcTdlDocResponse.getTdlDocTnc() != null && !sfdcTdlDocResponse.getTdlDocTnc().isEmpty()
+                   && sfdcTdlDocResponse.getTdlDocLoanAgr() != null && !sfdcTdlDocResponse.getTdlDocLoanAgr().isEmpty() &&
+                   kfsAvailable) {
+               if(sfdcTdlDocResponse.getEmudraStatus() == null || !sfdcTdlDocResponse.getEmudraStatus().equals(ProjectConstants.SUCCESS)) {
+
+                   makeEsignPDF(Integer.valueOf(leadId),base64KfsDoc);
+                   logger.info("calling creatingEmudraRequest for esigned doc pushing for leadId {}", leadId);
+                   emudraRequest = creatingEmudraRequest(leadId);
+
+                   if (emudraRequest.getFile_content_string() !=null) {
+                       logger.info("calling EmudraService ...");
+                       emudraExternalResponse = eMudraService(leadId, emudraRequest);
+                   }
+
+                   if (emudraExternalResponse.getSigned_file_content() != null) {
+                       logger.info("Pusing Document to DMS and Emails");
+                       pushEmudraToDMSAndEmail(leadId, emudraExternalResponse.getSigned_file_content());
+                   }
+
+               }else {
+                   logger.info("Emudra Esigned document is already available.");
+               }
+           }
+       } catch (Exception e) {
+           e.printStackTrace();
+       }
+   }
+
+/*
+    private void dgoBackEndProcess1(String plLeadId){
+        String leadId;
+        String base64KfsDoc =null;
+        boolean kfsAvailable = false;
+        SfdcTdlDocResponse sfdcTdlDocResponse =new SfdcTdlDocResponse();
+        EmudraRequest emudraRequest= new EmudraRequest();
+        EmudraExternalResponse emudraExternalResponse = new EmudraExternalResponse();
+
+        try {
+            */
+/*check all 4 document is available then hit external service for emudra*//*
+
+            leadId=plLeadId;
+            List<UploadDoc> uploadDoc=uploadDocDAO.getUploadDocResByPlleadIdAndDocType(leadId, ProjectConstants.CUSTOMER_KFS_GENERATION_DOC_TYPE);
+            sfdcTdlDocResponse= sfdcTdlDocDAO.getSfdcTdlDocByLeadId(Integer.valueOf(leadId));
+            if (uploadDoc.size() >0)
+                base64KfsDoc =uploadDoc.get(0).getBase64FormattedData();
+            logger.info("UploadDoc Size is {}", uploadDoc.size());
+
+
+           if(!uploadDoc.isEmpty()  && base64KfsDoc != null){
+               kfsAvailable = true;
                LoggerClass.appLayerLogger.info("kfsAvailable {} for LeadId {}",kfsAvailable , leadId);
            }
 
@@ -1500,7 +1555,7 @@ public class EmudraServiceImpl implements EmudraService {
 
             esignBase64Data= convertFileToBase64(tmpDir.getParentFile()+"/"+leadId+"_mergedFile.pdf");
 
-//            LoggerClass.appLayerLogger.info("base64 {}",esignBase64Data);
+//            logger.info("base64 {}",esignBase64Data);
             sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
             if (esignBase64Data != null) {
                 sfdcTdlDocResponse.setEsignDoc(esignBase64Data);
@@ -1513,52 +1568,6 @@ public class EmudraServiceImpl implements EmudraService {
         }
         return null;
     }
-
-/*
-    public String combineTwoPdf1(File[] filePaths, String destinationFileName, String leadId) throws IOException {// this for acceptng the file array.
-
-        String  esignBase64Data= null;
-        SfdcTdlDocResponse sfdcTdlDocResponse = new SfdcTdlDocResponse();
-        String path=null;
-        try {
-            String newFilePath = destinationFileName +leadId+ "_mergedFile.pdf";
-            File tmpDir = new File(newFilePath);
-
-            PDFMergerUtility obj = new PDFMergerUtility();
-//            obj.setDestinationFileName(tmpDir.getAbsolutePath()+leadId+ "_mergedFile.pdf");
-            obj.setDestinationFileName(newFilePath);
-
-            // Add all source files, to be merged
-            for (File files : filePaths){
-                obj.addSource(files.getAbsoluteFile());
-            }
-
-            obj.mergeDocuments();
-
-//            encode(tmpDir.getParentFile()+"/" +leadId+"_mergedFile.pdf", tmpDir.getParentFile() +"/" +leadId+"_mergedFile.txt", true);
-//            encode(newFilePath+leadId+"_mergedFile.pdf", newFilePath +leadId+"_mergedFile.txt", true);
-
-            System.out.println("PDF Documents merged to a single file");
-//            path =tmpDir.getParentFile() +"/" +leadId+"_mergedFile.txt";
-//            esignBase64Data =copyDataFromFile(path) ;
-
-            esignBase64Data= convertFileToBase64(tmpDir.getParentFile()+"/"+leadId+"_mergedFile.pdf");
-
-//            LoggerClass.appLayerLogger.info("base64 {}",esignBase64Data);
-            sfdcTdlDocResponse.setLeadId(Integer.valueOf(leadId));
-            if (esignBase64Data != null) {
-                sfdcTdlDocResponse.setEsignDoc(esignBase64Data);
-                sfdcTdlDocResponse.setEmudraStatus(ProjectConstants.FAILURE);
-            }
-            saveOrUpdateSfdcData(sfdcTdlDocResponse);
-
-        } catch (IOException | COSVisitorException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-*/
-
 
 /*
     public String combineTwoPdf1(File[] filePaths, String destinationFileName, String leadId) throws IOException {// this for acceptng the file array.

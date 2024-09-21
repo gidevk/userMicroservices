@@ -6,6 +6,7 @@ import com.expriment.entity.vo.NameMatchKarzaRequest;
 import com.expriment.entity.vo.NameMatchKarzaResponse;
 import com.expriment.service.NameMatchingService;
 import com.expriment.utils.audit.LoggerClass;
+import com.expriment.service.NameMatchingService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -192,12 +193,6 @@ public class CKYCServiceImpl  {
 //                saveOrUpdateCKYCStatus(leadId, APINameConstants.CKYC_DOWNLOAD, "ERRMM01",
 //                        matchFailedError.toString());
             }
-           /* ApplicationStatus applicationStatus = applicationStatusDAO.getApplicationStatus(String.valueOf(leadId));
-            if(applicationStatus!=null && nameMatchKarzaResponse != null) {
-                LoggerClass.appLayerLogger.info("Updating application status table.."+nameMatchKarzaResponse.getResponse().getScore());
-                applicationStatus.setCkyNameMatchScore(nameMatchKarzaResponse.getResponse().getScore());
-                applicationStatusDAO.saveOrUpdateApplicationStatus(applicationStatus);
-            }*/
         }
         return nameMatchKarzaResponse;
     }

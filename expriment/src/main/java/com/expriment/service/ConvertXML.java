@@ -1,3 +1,4 @@
+/*
 package com.expriment.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -43,10 +44,13 @@ public static String xml="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"
                 "            </X509Data>\n" +
                 "        </KeyInfo>\n" +
                 "    </Signature>\n" +
-                "</Certificate>"; /*"<?xml version=\"1.0\" ?><root><test       attribute=\"text1\">javatpoint</test><test attribute=\"text2\">JTP</test></root>";
-  */
+                "</Certificate>"; */
+/*"<?xml version=\"1.0\" ?><root><test       attribute=\"text1\">javatpoint</test><test attribute=\"text2\">JTP</test></root>";
+  *//*
+
 public static void main(String[] args) {  
 // TODO Auto-generated method stub  
+*/
 /*try {
 JSONObject json = XML.toJSONObject(xml);
         String jsonString = json.toString(5);
@@ -55,7 +59,8 @@ JSONObject json = XML.toJSONObject(xml);
 }catch (JSONException e) {  
 // TODO: handle exception  
 System.out.println(e.toString());  
-}  */
+}  *//*
+
         // XML string to convert
         String xmlString = "<root><name>John</name><age>25</age></root>";
 
@@ -77,4 +82,4 @@ System.out.println(e.toString());
 }  
   
   
-}  
+}  */
