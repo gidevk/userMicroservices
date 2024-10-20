@@ -6,13 +6,13 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="user_service" />
         <module name="expriment" />
+        <module name="user_service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="expriment" target="1.8" />
-      <module name="user_service" target="8" />
+      <module name="user_service" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
