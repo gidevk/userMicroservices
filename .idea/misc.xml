@@ -5,6 +5,7 @@
       <list>
         <option value="$PROJECT_DIR$/expriment/pom.xml" />
         <option value="$PROJECT_DIR$/user_service/pom.xml" />
+        <option value="$PROJECT_DIR$/Kafka_project/pom.xml" />
       </list>
     </option>
   </component>

@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Kafka_project/Kafka_project.iml" filepath="$PROJECT_DIR$/Kafka_project/Kafka_project.iml" />
       <module fileurl="file://$PROJECT_DIR$/expriment/expriment.iml" filepath="$PROJECT_DIR$/expriment/expriment.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Kafka_project/kafka_consumer_database/kafka_consumer_database.iml" filepath="$PROJECT_DIR$/Kafka_project/kafka_consumer_database/kafka_consumer_database.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Kafka_project/kafka_producer/kafka_producer.iml" filepath="$PROJECT_DIR$/Kafka_project/kafka_producer/kafka_producer.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/userMicroservices.iml" filepath="$PROJECT_DIR$/.idea/userMicroservices.iml" />
       <module fileurl="file://$PROJECT_DIR$/user_service/user_service.iml" filepath="$PROJECT_DIR$/user_service/user_service.iml" />
     </modules>

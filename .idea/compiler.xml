@@ -6,18 +6,26 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="expriment" />
+        <module name="kafka_consumer_database" />
+        <module name="kafka_producer" />
         <module name="user_service" />
+        <module name="expriment" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="expriment" target="1.8" />
+      <module name="kafka_consumer" target="1.8" />
+      <module name="kafka_consumer_database" target="1.8" />
+      <module name="kafka_producer" target="1.8" />
+      <module name="Kafka_project" target="1.8" />
       <module name="user_service" target="1.8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="expriment" options="-parameters" />
+      <module name="kafka_consumer_database" options="-parameters" />
+      <module name="kafka_producer" options="-parameters" />
       <module name="user_service" options="-parameters" />
     </option>
   </component>
