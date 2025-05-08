@@ -1,5 +1,6 @@
 package com.expriment.service.serviceImpl;
 
+import com.expriment.Controller.UI.AccountAnalysis;
 import com.expriment.DAO.CDIOfferModuleDataDAO;
 import com.expriment.DAO.DigilockerDetailsDAO;
 import com.expriment.entity.CDIOfferModule;
@@ -12,14 +13,21 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.List;
 //import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 
 @Service
@@ -129,8 +137,92 @@ public  void main1(String[] args) {
 //       return jsonString;
    }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
 //        extractingXmlData(xmlData);
+        try {
+            String xmlData=new String(Files.readAllBytes(Paths.get("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/Controller/Sample XML.xml")));
+           /* String xmlData="<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" +
+                    "<PIR:Data xmlns:PIR=\"https://www.finbox.in/\">\n" +
+                    "<AccountAnalysis accountNo=\"XXXXXXXX3756\" accountID=\"5914dd0e-5e14-4553-a197-64019f826b25\" accountType=\"SAVINGS\">\n" +
+                    "\n" +
+                    "<MonthlyDetails>\n" +
+                    "<MonthlyDetail monthName=\"Sep-2023\" avgUtilization=\"0.0\" bal10=\"\" bal15=\"2.05\" bal17=\"2.05\" bal2=\"\" bal20=\"6.6\" bal25=\"6.6\" bal30=\"6.6\" bal4=\"\" bal5=\"\" balAvg=\"4.92\" balLast=\"6.6\" balMax=\"6.6\" balMin=\"2.05\" balTopNAvg=\"5.69\" cashDeposits=\"0\" cashWithdrawals=\"0\" chqDeposits=\"0\" chqIssues=\"0\" credits=\"2\" creditsSC=\"\" creditsSelf=\"0\" debits=\"2\" debitsSC=\"\" debitsSelf=\"0\" dpLimit=\"\" emiOrLoans=\"0\" highestSalaryDate=\"\" intPayDelay=\"\" inwBounceNonTechnical=\"0\" inwBounceTechnical=\"0\" inwBounces=\"0\" inwChqBounceNonTechnical=\"0\" inwEMIBounces=\"\" loanDisbursals=\"0\" outwBounces=\"0\" overdrawnAmount=\"\" overdrawnDays=\"\" overdrawnDaysPeak=\"\" overdrawnInstances=\"\" salaries=\"0.0\" snLimit=\"\" startDate=\"2023-09-12\" totalBankCharge=\"0.0\" totalCashDeposit=\"0.0\" totalCashWithdrawal=\"0.0\" totalChqDeposit=\"0.0\" totalChqIssue=\"0.0\" totalCredit=\"6900.0\" totalCreditCardPayment=\"6893.4\" totalCreditSC=\"\" totalCreditSelf=\"0.0\" totalDebit=\"6893.4\" totalDebitSC=\"\" totalDebitSelf=\"0.0\" totalEmiIssue=\"\" totalEmiOrLoan=\"0.0\" totalInterestCharged=\"0.0\" totalInterestIncome=\"0.0\" totalInvExpense=\"0.0\" totalInvIncome=\"0.0\" totalLoanDisbursal=\"0.0\" totalOtherExpense=\"0.0\" totalOtherIncome=\"0.0\" totalPaidSalary=\"0.0\" totalPension=\"0.0\" totalSalary=\"0.0\" totalUtilityExpense=\"0.0\" />\n" +
+                    "<MonthlyDetail monthName=\"Oct-2023\" avgUtilization=\"0.0\" bal10=\"6.6\" bal15=\"6.6\" bal17=\"6.6\" bal2=\"6.6\" bal20=\"6.6\" bal25=\"6.6\" bal30=\"6.6\" bal4=\"6.6\" bal5=\"6.6\" balAvg=\"6.6\" balLast=\"6.6\" balMax=\"6.6\" balMin=\"6.6\" balTopNAvg=\"6.6\" cashDeposits=\"0\" cashWithdrawals=\"0\" chqDeposits=\"0\" chqIssues=\"0\" credits=\"0\" creditsSC=\"\" creditsSelf=\"0\" debits=\"0\" debitsSC=\"\" debitsSelf=\"0\" dpLimit=\"\" emiOrLoans=\"0\" highestSalaryDate=\"\" intPayDelay=\"\" inwBounceNonTechnical=\"0\" inwBounceTechnical=\"0\" inwBounces=\"0\" inwChqBounceNonTechnical=\"0\" inwEMIBounces=\"\" loanDisbursals=\"0\" outwBounces=\"0\" overdrawnAmount=\"\" overdrawnDays=\"\" overdrawnDaysPeak=\"\" overdrawnInstances=\"\" salaries=\"0.0\" snLimit=\"\" startDate=\"2023-10-01\" totalBankCharge=\"0.0\" totalCashDeposit=\"0.0\" totalCashWithdrawal=\"0.0\" totalChqDeposit=\"0.0\" totalChqIssue=\"0.0\" totalCredit=\"0.0\" totalCreditCardPayment=\"0.0\" totalCreditSC=\"\" totalCreditSelf=\"0.0\" totalDebit=\"0.0\" totalDebitSC=\"\" totalDebitSelf=\"0.0\" totalEmiIssue=\"\" totalEmiOrLoan=\"0.0\" totalInterestCharged=\"0.0\" totalInterestIncome=\"0.0\" totalInvExpense=\"0.0\" totalInvIncome=\"0.0\" totalLoanDisbursal=\"0.0\" totalOtherExpense=\"0.0\" totalOtherIncome=\"0.0\" totalPaidSalary=\"0.0\" totalPension=\"0.0\" totalSalary=\"0.0\" totalUtilityExpense=\"0.0\" />\n" +
+                    "<MonthlyDetail monthName=\"Nov-2023\" avgUtilization=\"0.0\" bal10=\"12.7\" bal15=\"12.7\" bal17=\"12.7\" bal2=\"12.7\" bal20=\"12.7\" bal25=\"12.7\" bal30=\"12.7\" bal4=\"12.7\" bal5=\"12.7\" balAvg=\"12.7\" balLast=\"12.7\" balMax=\"12.7\" balMin=\"12.7\" balTopNAvg=\"12.7\" cashDeposits=\"0\" cashWithdrawals=\"0\" chqDeposits=\"0\" chqIssues=\"0\" credits=\"1\" creditsSC=\"\" creditsSelf=\"0\" debits=\"1\" debitsSC=\"\" debitsSelf=\"0\" dpLimit=\"\" emiOrLoans=\"0\" highestSalaryDate=\"\" intPayDelay=\"\" inwBounceNonTechnical=\"0\" inwBounceTechnical=\"0\" inwBounces=\"0\" inwChqBounceNonTechnical=\"0\" inwEMIBounces=\"\" loanDisbursals=\"0\" outwBounces=\"0\" overdrawnAmount=\"\" overdrawnDays=\"\" overdrawnDaysPeak=\"\" overdrawnInstances=\"\" salaries=\"0.0\" snLimit=\"\" startDate=\"2023-11-01\" totalBankCharge=\"0.0\" totalCashDeposit=\"0.0\" totalCashWithdrawal=\"0.0\" totalChqDeposit=\"0.0\" totalChqIssue=\"0.0\" totalCredit=\"1415.0\" totalCreditCardPayment=\"1408.9\" totalCreditSC=\"\" totalCreditSelf=\"0.0\" totalDebit=\"1408.9\" totalDebitSC=\"\" totalDebitSelf=\"0.0\" totalEmiIssue=\"\" totalEmiOrLoan=\"0.0\" totalInterestCharged=\"0.0\" totalInterestIncome=\"0.0\" totalInvExpense=\"0.0\" totalInvIncome=\"0.0\" totalLoanDisbursal=\"0.0\" totalOtherExpense=\"0.0\" totalOtherIncome=\"0.0\" totalPaidSalary=\"0.0\" totalPension=\"0.0\" totalSalary=\"0.0\" totalUtilityExpense=\"0.0\" />\n" +
+                    "<MonthlyDetail monthName=\"Dec-2023\" avgUtilization=\"0.0\" bal10=\"3258.7\" bal15=\"3258.7\" bal17=\"3258.7\" bal2=\"12.7\" bal20=\"3258.7\" bal25=\"10.7\" bal30=\"14.7\" bal4=\"12.7\" bal5=\"12.7\" balAvg=\"1687.86\" balLast=\"14.7\" balMax=\"3258.7\" balMin=\"10.7\" balTopNAvg=\"3258.7\" cashDeposits=\"0\" cashWithdrawals=\"0\" chqDeposits=\"0\" chqIssues=\"0\" credits=\"4\" creditsSC=\"\" creditsSelf=\"0\" debits=\"3\" debitsSC=\"\" debitsSelf=\"0\" dpLimit=\"\" emiOrLoans=\"0\" highestSalaryDate=\"\" intPayDelay=\"\" inwBounceNonTechnical=\"0\" inwBounceTechnical=\"0\" inwBounces=\"0\" inwChqBounceNonTechnical=\"0\" inwEMIBounces=\"\" loanDisbursals=\"0\" outwBounces=\"0\" overdrawnAmount=\"\" overdrawnDays=\"\" overdrawnDaysPeak=\"\" overdrawnInstances=\"\" salaries=\"0.0\" snLimit=\"\" startDate=\"2023-12-01\" totalBankCharge=\"0.0\" totalCashDeposit=\"0.0\" totalCashWithdrawal=\"0.0\" totalChqDeposit=\"0.0\" totalChqIssue=\"0.0\" totalCredit=\"16820.0\" totalCreditCardPayment=\"16818.0\" totalCreditSC=\"\" totalCreditSelf=\"0.0\" totalDebit=\"16818.0\" totalDebitSC=\"\" totalDebitSelf=\"0.0\" totalEmiIssue=\"\" totalEmiOrLoan=\"0.0\" totalInterestCharged=\"0.0\" totalInterestIncome=\"4.0\" totalInvExpense=\"0.0\" totalInvIncome=\"0.0\" totalLoanDisbursal=\"0.0\" totalOtherExpense=\"0.0\" totalOtherIncome=\"0.0\" totalPaidSalary=\"0.0\" totalPension=\"0.0\" totalSalary=\"0.0\" totalUtilityExpense=\"0.0\" />\n" +
+                    "<MonthlyDetail monthName=\"Jan-2024\" avgUtilization=\"0.0\" bal10=\"14.7\" bal15=\"14.7\" bal17=\"14.7\" bal2=\"14.7\" bal20=\"14.7\" bal25=\"14.7\" bal30=\"14.7\" bal4=\"14.7\" bal5=\"14.7\" balAvg=\"14.7\" balLast=\"14.7\" balMax=\"14.7\" balMin=\"14.7\" balTopNAvg=\"14.7\" cashDeposits=\"0\" cashWithdrawals=\"0\" chqDeposits=\"0\" chqIssues=\"0\" credits=\"0\" creditsSC=\"\" creditsSelf=\"0\" debits=\"0\" debitsSC=\"\" debitsSelf=\"0\" dpLimit=\"\" emiOrLoans=\"0\" highestSalaryDate=\"\" intPayDelay=\"\" inwBounceNonTechnical=\"0\" inwBounceTechnical=\"0\" inwBounces=\"0\" inwChqBounceNonTechnical=\"0\" inwEMIBounces=\"\" loanDisbursals=\"0\" outwBounces=\"0\" overdrawnAmount=\"\" overdrawnDays=\"\" overdrawnDaysPeak=\"\" overdrawnInstances=\"\" salaries=\"0.0\" snLimit=\"\" startDate=\"2024-01-01\" totalBankCharge=\"0.0\" totalCashDeposit=\"0.0\" totalCashWithdrawal=\"0.0\" totalChqDeposit=\"0.0\" totalChqIssue=\"0.0\" totalCredit=\"0.0\" totalCreditCardPayment=\"0.0\" totalCreditSC=\"\" totalCreditSelf=\"0.0\" totalDebit=\"0.0\" totalDebitSC=\"\" totalDebitSelf=\"0.0\" totalEmiIssue=\"\" totalEmiOrLoan=\"0.0\" totalInterestCharged=\"0.0\" totalInterestIncome=\"0.0\" totalInvExpense=\"0.0\" totalInvIncome=\"0.0\" totalLoanDisbursal=\"0.0\" totalOtherExpense=\"0.0\" totalOtherIncome=\"0.0\" totalPaidSalary=\"0.0\" totalPension=\"0.0\" totalSalary=\"0.0\" totalUtilityExpense=\"0.0\" />\n" +
+                    "<MonthlyDetail monthName=\"Feb-2024\" avgUtilization=\"0.0\" bal10=\"15.7\" bal15=\"15.7\" bal17=\"15.7\" bal2=\"15.7\" bal20=\"15.7\" bal25=\"15.7\" bal30=\"\" bal4=\"15.7\" bal5=\"15.7\" balAvg=\"16.18\" balLast=\"29.5\" balMax=\"29.5\" balMin=\"15.7\" balTopNAvg=\"16.62\" cashDeposits=\"0\" cashWithdrawals=\"0\" chqDeposits=\"0\" chqIssues=\"0\" credits=\"2\" creditsSC=\"\" creditsSelf=\"0\" debits=\"2\" debitsSC=\"\" debitsSelf=\"0\" dpLimit=\"\" emiOrLoans=\"0\" highestSalaryDate=\"\" intPayDelay=\"\" inwBounceNonTechnical=\"0\" inwBounceTechnical=\"0\" inwBounces=\"0\" inwChqBounceNonTechnical=\"0\" inwEMIBounces=\"\" loanDisbursals=\"0\" outwBounces=\"0\" overdrawnAmount=\"\" overdrawnDays=\"\" overdrawnDaysPeak=\"\" overdrawnInstances=\"\" salaries=\"0.0\" snLimit=\"\" startDate=\"2024-02-01\" totalBankCharge=\"0.0\" totalCashDeposit=\"0.0\" totalCashWithdrawal=\"0.0\" totalChqDeposit=\"0.0\" totalChqIssue=\"0.0\" totalCredit=\"5805.0\" totalCreditCardPayment=\"5790.2\" totalCreditSC=\"\" totalCreditSelf=\"0.0\" totalDebit=\"5790.2\" totalDebitSC=\"\" totalDebitSelf=\"0.0\" totalEmiIssue=\"\" totalEmiOrLoan=\"0.0\" totalInterestCharged=\"0.0\" totalInterestIncome=\"0.0\" totalInvExpense=\"0.0\" totalInvIncome=\"0.0\" totalLoanDisbursal=\"0.0\" totalOtherExpense=\"0.0\" totalOtherIncome=\"0.0\" totalPaidSalary=\"0.0\" totalPension=\"0.0\" totalSalary=\"0.0\" totalUtilityExpense=\"0.0\" />\n" +
+                    "<MonthlyDetail monthName=\"Mar-2024\" avgUtilization=\"0.0\" bal10=\"29.5\" bal15=\"29.5\" bal17=\"29.5\" bal2=\"29.5\" bal20=\"29.5\" bal25=\"29.5\" bal30=\"33.13\" bal4=\"29.5\" bal5=\"29.5\" balAvg=\"29.85\" balLast=\"33.13\" balMax=\"33.13\" balMin=\"29.5\" balTopNAvg=\"30.23\" cashDeposits=\"0\" cashWithdrawals=\"0\" chqDeposits=\"0\" chqIssues=\"0\" credits=\"1\" creditsSC=\"\" creditsSelf=\"0\" debits=\"1\" debitsSC=\"\" debitsSelf=\"0\" dpLimit=\"\" emiOrLoans=\"0\" highestSalaryDate=\"\" intPayDelay=\"\" inwBounceNonTechnical=\"0\" inwBounceTechnical=\"0\" inwBounces=\"0\" inwChqBounceNonTechnical=\"0\" inwEMIBounces=\"\" loanDisbursals=\"0\" outwBounces=\"0\" overdrawnAmount=\"\" overdrawnDays=\"\" overdrawnDaysPeak=\"\" overdrawnInstances=\"\" salaries=\"0.0\" snLimit=\"\" startDate=\"2024-03-01\" totalBankCharge=\"0.0\" totalCashDeposit=\"0.0\" totalCashWithdrawal=\"0.0\" totalChqDeposit=\"0.0\" totalChqIssue=\"0.0\" totalCredit=\"14230.0\" totalCreditCardPayment=\"14226.37\" totalCreditSC=\"\" totalCreditSelf=\"0.0\" totalDebit=\"14226.37\" totalDebitSC=\"\" totalDebitSelf=\"0.0\" totalEmiIssue=\"\" totalEmiOrLoan=\"0.0\" totalInterestCharged=\"0.0\" totalInterestIncome=\"0.0\" totalInvExpense=\"0.0\" totalInvIncome=\"0.0\" totalLoanDisbursal=\"0.0\" totalOtherExpense=\"0.0\" totalOtherIncome=\"0.0\" totalPaidSalary=\"0.0\" totalPension=\"0.0\" totalSalary=\"0.0\" totalUtilityExpense=\"0.0\" />\n" +
+                    "<MonthlyDetail monthName=\"Apr-2024\" avgUtilization=\"0.0\" bal10=\"33.13\" bal15=\"33.13\" bal17=\"33.13\" bal2=\"33.13\" bal20=\"33.13\" bal25=\"33.13\" bal30=\"33.13\" bal4=\"33.13\" bal5=\"33.13\" balAvg=\"33.13\" balLast=\"33.13\" balMax=\"33.13\" balMin=\"33.13\" balTopNAvg=\"33.13\" cashDeposits=\"0\" cashWithdrawals=\"0\" chqDeposits=\"0\" chqIssues=\"0\" credits=\"0\" creditsSC=\"\" creditsSelf=\"0\" debits=\"0\" debitsSC=\"\" debitsSelf=\"0\" dpLimit=\"\" emiOrLoans=\"0\" highestSalaryDate=\"\" intPayDelay=\"\" inwBounceNonTechnical=\"0\" inwBounceTechnical=\"0\" inwBounces=\"0\" inwChqBounceNonTechnical=\"0\" inwEMIBounces=\"\" loanDisbursals=\"0\" outwBounces=\"0\" overdrawnAmount=\"\" overdrawnDays=\"\" overdrawnDaysPeak=\"\" overdrawnInstances=\"\" salaries=\"0.0\" snLimit=\"\" startDate=\"2024-04-01\" totalBankCharge=\"0.0\" totalCashDeposit=\"0.0\" totalCashWithdrawal=\"0.0\" totalChqDeposit=\"0.0\" totalChqIssue=\"0.0\" totalCredit=\"0.0\" totalCreditCardPayment=\"0.0\" totalCreditSC=\"\" totalCreditSelf=\"0.0\" totalDebit=\"0.0\" totalDebitSC=\"\" totalDebitSelf=\"0.0\" totalEmiIssue=\"\" totalEmiOrLoan=\"0.0\" totalInterestCharged=\"0.0\" totalInterestIncome=\"0.0\" totalInvExpense=\"0.0\" totalInvIncome=\"0.0\" totalLoanDisbursal=\"0.0\" totalOtherExpense=\"0.0\" totalOtherIncome=\"0.0\" totalPaidSalary=\"0.0\" totalPension=\"0.0\" totalSalary=\"0.0\" totalUtilityExpense=\"0.0\" />\n" +
+                    "</MonthlyDetails>\n" +
+                    "</AccountAnalysis>\n" +
+                    "</PIR:Data>";*/
+            xmlData = xmlData.replace("\\n", "")     // Remove \n
+                    .replace("\\r", "")     // Remove \r
+                    .replace("\\", "") // Replace \\" with "
+//                    .replace("\", "") // Replace \\" with "
+                    .replace("&", "&amp;");
+
+
+            // Step 1: Convert XML to Java object
+            XmlMapper xmlMapper = new XmlMapper();
+            Object xmlObject = xmlMapper.readValue(xmlData, Object.class);
+
+            // Step 2: Convert Java object to JSON string
+            ObjectMapper jsonMapper = new ObjectMapper();
+            String jsonString = jsonMapper.writeValueAsString(xmlObject);
+
+            // Step 3: Parse JSON string to JSONObject
+            JSONObject json = new JSONObject(jsonString);
+            JSONObject accountAnalysis= json.getJSONObject("AccountAnalysis");
+            System.out.println("accountAnalysis accountNo "+accountAnalysis.getString("accountNo"));
+            JSONObject monthlyDetails = accountAnalysis.getJSONObject("MonthlyDetails");
+            System.out.println("Original MonthlyDetails JSON: " + monthlyDetails);
+
+            // Step 4: Handle MonthlyDetail based on type
+            Object monthlyDetailObj = monthlyDetails.opt("MonthlyDetail");
+            System.out.println("Type of MonthlyDetail: " + (monthlyDetailObj != null ? monthlyDetailObj.getClass() : "null"));
+
+            JSONArray monthlyDetailArray;
+
+            if (monthlyDetailObj == null) {
+                throw new IllegalArgumentException("MonthlyDetail is missing or null.");
+            } else if (monthlyDetailObj instanceof JSONObject) {
+                // Single object: Wrap it into a JSONArray
+                monthlyDetailArray = new JSONArray();
+                monthlyDetailArray.put(monthlyDetailObj);
+            } else if (monthlyDetailObj instanceof JSONArray) {
+                // Already a JSONArray: Use it directly
+                monthlyDetailArray = (JSONArray) monthlyDetailObj;
+            } else {
+                throw new IllegalArgumentException("Unexpected type for MonthlyDetail: " + monthlyDetailObj.getClass());
+            }
+
+            // Step 5: Replace MonthlyDetail with the normalized array
+            monthlyDetails.put("MonthlyDetail", monthlyDetailArray);
+
+            System.out.println("Normalized MonthlyDetails JSON: " + monthlyDetails);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+        }
+
+        try {
+            String xmlData2=new String(Files.readAllBytes(Paths.get("C:/Users/Indradev.Kumar/IdeaProjects/MyExperiment/expriment/src/main/java/com/expriment/Controller/Sample XML.xml")));
+
+            JAXBContext context = JAXBContext.newInstance(AccountAnalysis.class);
+            Unmarshaller unmarshaller = context.createUnmarshaller();
+            StringReader reader = new StringReader(xmlData2);
+            AccountAnalysis accountAnalysis = (AccountAnalysis) unmarshaller.unmarshal(reader);
+
+            AccountAnalysis.MonthlyDetails monthlyDetails= accountAnalysis.getMonthlyDetails();
+            List<AccountAnalysis.MonthlyDetails.MonthlyDetail> monthlyDetail= monthlyDetails.getMonthlyDetailList();
+            for (AccountAnalysis.MonthlyDetails.MonthlyDetail monthlyDetail1: monthlyDetails.getMonthlyDetailList()){
+                System.out.println("MOnthName: " + monthlyDetail1.getMonthName() + ", Total salary: " + monthlyDetail1.getTotalSalary());
+            }
+        } catch (JAXBException | IOException e) {
+            e.printStackTrace();
+        }
     }
     @Override
    public void extractingXmlData(String xmleAadharData){
@@ -146,13 +238,15 @@ public  void main1(String[] args) {
           logger.info(jsonString);
 
            JSONObject json = new JSONObject(jsonString);
-           JSONObject certificateData = json.getJSONObject("CertificateData");
-           JSONObject kycRes = certificateData.getJSONObject("KycRes");
-           JSONObject uidai = kycRes.getJSONObject("UidData");
-           JSONObject poa = uidai.getJSONObject("Poa");
-           JSONObject poi = uidai.getJSONObject("Poi");
+           JSONObject accountAnalysis = json.getJSONObject("AccountAnalysis");
+           JSONObject monthlyDetails = accountAnalysis.getJSONObject("MonthlyDetails");
+           JSONObject monthlyDetail = monthlyDetails.getJSONObject("MonthlyDetail");
 
-          logger.info("uid-->"+uidai.get("uid")+"Name-->"+poi.get("name")+"gender-->"+poi.get("gender")+"dob-->"+poi.get("dob")
+           logger.info("monthlyDetail {}",monthlyDetail);
+           JSONObject poa = monthlyDetail.getJSONObject("Poa");
+           JSONObject poi = monthlyDetail.getJSONObject("Poi");
+
+          logger.info("uid-->"+monthlyDetail.get("uid")+"Name-->"+poi.get("name")+"gender-->"+poi.get("gender")+"dob-->"+poi.get("dob")
           +"country-->"+poa.get("country")+"state-->"+poa.get("state")+"dist-->"+poa.get("dist")+"house-->"+poa.get("house")+
                   "loc-->"+poa.get("loc")+"pinCode-->"+poa.get("pc")+"VilageTownCity-->"+poa.get("vtc"));
 //          logger.info();
@@ -165,7 +259,7 @@ public  void main1(String[] args) {
           logger.info("loc-->"+poa.get("loc"));
           logger.info("pinCode-->"+poa.get("pc"));
           logger.info("VilageTownCity-->"+poa.get("vtc"));
-          logger.info("photograph {}",uidai.get("Pht"));
+          logger.info("photograph {}",monthlyDetail.get("Pht"));
 
 
            digilockerDetails.setLeadId(leadId++);
@@ -179,7 +273,7 @@ public  void main1(String[] args) {
            digilockerDetails.setLocality((String)poa.get("loc"));
            digilockerDetails.setPinCode((String)poa.get("pc"));
            digilockerDetails.setVillageTownCity((String)poa.get("vtc"));
-           digilockerDetails.setDigiPhotograph(((String)uidai.get("Pht")).length() >0 ? (String)uidai.get("Pht"):null);
+           digilockerDetails.setDigiPhotograph(((String)monthlyDetail.get("Pht")).length() >0 ? (String)monthlyDetail.get("Pht"):null);
            digilockerDetails.setCreatedDate(new Date());
 
            digilockerDetails =digilockerDetailsDAO.saveOrUpdate(digilockerDetails);

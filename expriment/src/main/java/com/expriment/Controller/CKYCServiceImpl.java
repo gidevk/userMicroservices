@@ -193,6 +193,12 @@ public class CKYCServiceImpl  {
 //                saveOrUpdateCKYCStatus(leadId, APINameConstants.CKYC_DOWNLOAD, "ERRMM01",
 //                        matchFailedError.toString());
             }
+           /* ApplicationStatus applicationStatus = applicationStatusDAO.getApplicationStatus(String.valueOf(leadId));
+            if(applicationStatus!=null && nameMatchKarzaResponse != null) {
+                logger.info("Updating application status table.."+nameMatchKarzaResponse.getResponse().getScore());
+                applicationStatus.setCkyNameMatchScore(nameMatchKarzaResponse.getResponse().getScore());
+                applicationStatusDAO.saveOrUpdateApplicationStatus(applicationStatus);
+            }*/
         }
         return nameMatchKarzaResponse;
     }

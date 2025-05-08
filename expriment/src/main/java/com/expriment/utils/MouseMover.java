@@ -1,6 +1,15 @@
 package com.expriment.utils;
 
+import com.expriment.entity.vo.NameMatchKarzaRequest;
+import com.expriment.utils.audit.entity.vo.ErrorResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.awt.*;
+import java.sql.Time;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -41,8 +50,11 @@ public class MouseMover {
             Robot robot = new Robot();
             Random random = new Random();
             int delay = 270; // delay in seconds
-
+            DateFormat dateFormat_current = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             while (true) {
+                Date date=new Date();
+                String systemDate = dateFormat_current.format(date);
+
                 // Get screen dimensions
                 int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
                 int screenHeight = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
@@ -50,10 +62,31 @@ public class MouseMover {
                 // Generate random coordinates
                 int x = random.nextInt(screenWidth);
                 int y = random.nextInt(screenHeight);
-                System.out.println("x "+x +" Y "+y);
+                System.out.println("Time is "+systemDate+ "   >>>>>>  x "+x +" Y "+y);
                 // Move mouse to random coordinates
                 robot.mouseMove(x, y);
 
+               /* NameMatchKarzaRequest nameMatchKarzaRequest = new NameMatchKarzaRequest();
+                nameMatchKarzaRequest.setCustomerHash("customerHash");
+                nameMatchKarzaRequest.setName("indradev");
+                nameMatchKarzaRequest.setPlLeadId("234938");
+
+                ErrorResponse error = new ErrorResponse();
+                error.setErrorCode("499");
+                error.setErrorMessage("hello");
+                error.setStatus("Success");
+
+                nameMatchKarzaRequest.setError(error);
+                // Create an ObjectMapper instance
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                // Convert the Map to a JSON string
+                String jsonString = objectMapper.writeValueAsString(nameMatchKarzaRequest);
+                System.out.println(nameMatchKarzaRequest.toString());
+                System.out.println(jsonString);
+
+
+*/
                 // Sleep for the specified delay
                 TimeUnit.SECONDS.sleep(delay);
             }

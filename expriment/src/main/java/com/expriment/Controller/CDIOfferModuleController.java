@@ -5,6 +5,9 @@ import com.expriment.Testing.EmudraDocRequest;
 import com.expriment.Testing.SfdcTdlDocResponse;
 import com.expriment.entity.CDIOfferModule;
 import com.expriment.service.serviceImpl.EmudraServiceImpl;
+import com.expriment.utils.audit.Service.AuditLogDataJPAService;
+import com.expriment.utils.audit.entity.AuditLogData;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +24,9 @@ public class CDIOfferModuleController {
 
     @Autowired
     EmudraServiceImpl emudraService;
+
+      @Autowired
+      AuditLogDataJPAService auditLogDataJPAService;
 
     @PostMapping(value="/saveOfferModule", produces = {MediaType.APPLICATION_JSON_VALUE})// /Offer/saveOfferModule
     public ResponseEntity<?> saveCDIOfferModule(@RequestBody CDIOfferModule cdiOfferModule){
@@ -51,6 +57,11 @@ public class CDIOfferModuleController {
     @GetMapping("/{oppId}") ////Offer/{oppId}
     public ResponseEntity<?> getOpportunityIdDetails(@PathVariable String oppId) {
         return new ResponseEntity<CDIOfferModule>(cdiOfferModuleDataDAO.getOfferDataByPlOpportunityId(oppId),HttpStatus.OK);
+    }
+
+    @GetMapping ("/ByCpId/{cp_id}") ////Offer/{oppId}
+    public AuditLogData getOpportunityIdDetails(@PathVariable /*@RequestParam(required = false)*/ Integer cp_id) throws JsonProcessingException {
+        return auditLogDataJPAService.findAllAuditLogDataByID(cp_id);
     }
 
     }
