@@ -2,15 +2,20 @@ package com.expriment.utils;
 
 
 import com.expriment.Testing.study.UnsafeSingleton;
+import com.expriment.utils.audit.LoggerClass;
+import jdk.nashorn.internal.runtime.logging.Loggable;
 import org.springframework.stereotype.Component;
 
 import javax.mail.*;
 import javax.mail.internet.MimeBodyPart;
+import javax.mail.search.ComparisonTerm;
+import javax.mail.search.ReceivedDateTerm;
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 
 @Component
 public class EmailAttachmentReader {
@@ -25,7 +30,13 @@ public class EmailAttachmentReader {
         receiver.setShouldDeleteMessages(false);
         return receiver;
     }*/
-    public void readEmailsAndDownloadAttachments() throws Exception {
+
+
+    // Define your filter date
+    LocalDateTime filterDateTime = LocalDate.now().atStartOfDay();
+    Date filterDate = Date.from(filterDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+    public void readEmailsAndDownloadAttachments()  throws MessagingException, IOException {
         System.out.println("readEmailsAndDownloadAttachments start: ");
 
         Properties props = new Properties();
@@ -39,23 +50,39 @@ public class EmailAttachmentReader {
         Folder inbox = store.getFolder("INBOX");
         inbox.open(Folder.READ_ONLY);
 
-        Message[] messages = inbox.getMessages();
-        for (Message message : messages) {
-            if (message.isMimeType("multipart/*")) {
-                Multipart multipart = (Multipart) message.getContent();
 
-                for (int i = 0; i < multipart.getCount(); i++) {
-                    BodyPart part = multipart.getBodyPart(i);
-                    if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) {
-                        String fileName = part.getFileName();
-                        MimeBodyPart mimePart = (MimeBodyPart) part;
-                        mimePart.saveFile(new File("downloads/" + fileName));
-                        System.out.println("Attachment saved: " + fileName);
+// Calculate the date 2 days ago
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -2);
+        Date twoDaysAgo = calendar.getTime();
+
+// Fetch only messages received in the last 2 days
+        ReceivedDateTerm term = new ReceivedDateTerm(ComparisonTerm.GE, twoDaysAgo);
+
+        Message[] messages = inbox.search(term);//inbox.getMessages();
+
+        LoggerClass.appLayerLogger.info(" filter Date {}", filterDate);
+        for (Message message : messages) {
+            Date receivedDate = message.getReceivedDate();
+            LoggerClass.appLayerLogger.info(" receivedDate {}", receivedDate);
+
+            // Filter based on received date
+            if (receivedDate != null && receivedDate.after(filterDate)) {
+                if (message.isMimeType("multipart/*")) {
+                    Multipart multipart = (Multipart) message.getContent();
+
+                    for (int i = 0; i < multipart.getCount(); i++) {
+                        BodyPart part = multipart.getBodyPart(i);
+                        if (Part.ATTACHMENT.equalsIgnoreCase(part.getDisposition())) {
+                            String fileName = part.getFileName();
+                            MimeBodyPart mimePart = (MimeBodyPart) part;
+                            mimePart.saveFile(new File("D:/" + fileName));
+                            System.out.println("Attachment saved: " + fileName);
+                        }
                     }
                 }
             }
-        }
-        inbox.close(false);
+        }  inbox.close(false);
         store.close();
     }
 
