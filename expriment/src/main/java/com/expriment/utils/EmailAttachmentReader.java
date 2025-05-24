@@ -45,7 +45,7 @@ public class EmailAttachmentReader {
         Session session = Session.getInstance(props, null);
         Store store = session.getStore();
 //        store.connect("imap.gmail.com", "your-email@gmail.com", "your-app-password");
-        store.connect("imap.gmail.com","idevk995@gmail.com", "Gm@95074");
+        store.connect("imap.gmail.com","idevk995@gmail.com", "cecp ftap hkxn bgsf");
 
         Folder inbox = store.getFolder("INBOX");
         inbox.open(Folder.READ_ONLY);
